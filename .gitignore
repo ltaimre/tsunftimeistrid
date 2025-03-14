@@ -1,0 +1,21 @@
+# Node.js sõltuvused
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Next.js buildi failid
+.next/
+out/
+build/
+
+# Keskkonnamuutujad (tundlik info, API võtmed jms)
+.env*
+!.env.example
+
+# IDE ja süsteemifailid
+.DS_Store
+.vscode/
+.idea/
+*.log
+
