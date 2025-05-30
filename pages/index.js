@@ -1,103 +1,96 @@
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Filters from "@/components/Filters";
+import ActiveFilters from "@/components/ActiveFilters";
+import { FIELDS } from "@/lib/constants";
+import { filterData } from "@/lib/filterData";
 
 export default function Home() {
-    const [data, setData] = useState([]);
-    const [filteredData, setFilteredData] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [workplaceFilter, setWorkplaceFilter] = useState('');
-    const [workplaces, setWorkplaces] = useState([]);
-    const [error, setError] = useState('');
+  const [data, setData] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [filters, setFilters] = useState({
+    query: "",
+    job: [],
+    profession: [],
+    years: { from: "", to: "" },
+  });
+  const [options, setOptions] = useState({ jobs: [], professions: [] });
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch('/api/data');
-                if (!response.ok) {
-                    throw new Error('Andmete laadimine ebaõnnestus');
-                }
-                const result = await response.json();
-                setData(result);
-                setFilteredData(result);
+  useEffect(() => {
+    fetch("/api/data")
+      .then((res) => res.json())
+      .then((result) => {
+        setData(result);
+        setFiltered(result);
 
-                // Unikaalsete töökohtade kogumine
-                const allWorkplaces = new Set();
-                result.forEach(item => {
-                    const places = item['Töökoht, töökohad']?.split(',').map(place => place.trim()) || [];
-                    places.forEach(place => allWorkplaces.add(place));
-                });
-                setWorkplaces(Array.from(allWorkplaces));
-            } catch (err) {
-                setError(err.message);
-            }
-        };
+        const allJobs = new Set();
+        const allProfessions = new Set();
 
-        fetchData();
-    }, []);
-
-    useEffect(() => {
-        const lowerCaseQuery = searchQuery.toLowerCase();
-
-        const filtered = data.filter((item) => {
-            const matchesName = (
-                item.Eesnimi?.toLowerCase().includes(lowerCaseQuery) ||
-                item.Perekonnanimi?.toLowerCase().includes(lowerCaseQuery)
-            );
-
-            const workplaces = item['Töökoht, töökohad']?.split(',').map(w => w.trim()) || [];
-            const matchesWorkplace = workplaceFilter ? workplaces.includes(workplaceFilter) : true;
-
-            return matchesName && matchesWorkplace;
+        result.forEach((item) => {
+          item[FIELDS.WORKPLACE]?.split(",").map((w) => allJobs.add(w.trim()));
+          item[FIELDS.PROFESSION]
+            ?.split(",")
+            .map((p) => allProfessions.add(p.trim()));
         });
 
-        setFilteredData(filtered);
-    }, [searchQuery, workplaceFilter, data]);
+        setOptions({
+          jobs: Array.from(allJobs),
+          professions: Array.from(allProfessions),
+        });
+      });
+  }, []);
 
-    return (
-        <div style={{ padding: '20px', fontFamily: 'Arial' }}>
-            <h1>Tsunftiga seotud meistrid</h1>
+  useEffect(() => {
+    setFiltered(filterData(data, filters));
+  }, [filters, data]);
 
-            <input
-                type="text"
-                placeholder="Otsi eesnime või perekonnanime järgi"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ marginBottom: '10px', padding: '5px', width: '100%' }}
-            />
+  return (
+    <div className="home-container">
+      <h1 className="page-title">Tsunftiga seotud meistrid</h1>
 
-            <select
-                value={workplaceFilter}
-                onChange={(e) => setWorkplaceFilter(e.target.value)}
-                style={{ marginBottom: '10px', padding: '5px', width: '100%' }}
-            >
-                <option value="">Kõik töökohad</option>
-                {workplaces.map((place) => (
-                    <option key={place} value={place}>{place}</option>
-                ))}
-            </select>
-
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-
-            <table style={{ borderCollapse: 'collapse', width: '100%', border: '1px solid #ddd' }}>
-                <thead>
-                    <tr>
-                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>Eesnimi</th>
-                        <th style={{ border: '1px solid #ddd', padding: '8px' }}>Perekonnanimi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredData.map((item, index) => (
-                        <tr key={index}>
-                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>
-                                <Link href={`/meister/${index}`}>
-                                    {item.Eesnimi}
-                                </Link>
-                            </td>
-                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{item.Perekonnanimi}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    );
+      <Filters filters={filters} setFilters={setFilters} options={options} />
+      {(filters.query ||
+        filters.job ||
+        filters.profession ||
+        filters.years.from ||
+        filters.years.to) && (
+        <button
+          className="clear-filters-btn"
+          onClick={() =>
+            setFilters({
+              query: "",
+              job: "",
+              profession: "",
+              years: { from: "", to: "" },
+            })
+          }
+        >
+          Tühjenda filtrid
+        </button>
+      )}
+      <ActiveFilters filters={filters} setFilters={setFilters} />
+      <div className="table-container">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Eesnimi</th>
+              <th>Perekonnanimi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((item, index) => (
+              <tr key={index}>
+                <td>
+                  <Link href={`/meister/${index}`}>
+                    {item[FIELDS.NAME.FIRST]}
+                  </Link>
+                </td>
+                <td>{item[FIELDS.NAME.LAST]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }

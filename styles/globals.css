@@ -1,0 +1,230 @@
+/* === TABELID === */
+.table-container {
+    overflow-x: auto;
+    margin-top: 1rem;
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 0.95rem;
+    border: 1px solid #bbb;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .data-table th {
+    background-color: #eaf4ff;
+    color: #333;
+    text-align: left;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+  }
+  
+  .data-table tr:nth-child(even) td {
+    background-color: #f9f9f9;
+  }
+  
+  .data-table tr:hover td {
+    background-color: #f1faff;
+  }
+  
+  /* === DETAILVAATE TABEL === */
+  .meister-detail {
+    padding: 24px;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #fdfdfd;
+  }
+  
+  .meister-detail h1 {
+    font-size: 1.75rem;
+    margin-bottom: 24px;
+    color: #1a202c;
+  }
+  
+  .meister-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .meister-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #ddd;
+    vertical-align: top;
+  }
+  
+  .meister-table .label {
+    font-weight: bold;
+    width: 30%;
+    background-color: #f6f6f6;
+  }
+  
+  /* === FILTRID === */
+  .filters-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    .filters-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  .filters-grid input,
+  .filters-grid select {
+    padding: 10px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border 0.2s;
+  }
+  
+  .filters-grid input:focus,
+  .filters-grid select:focus {
+    border-color: #3182ce;
+    outline: none;
+  }
+  
+  .year-inputs {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .year-inputs input {
+    flex: 1;
+  }
+  
+  /* === AVALAEHT === */
+  .home-container {
+    padding: 24px;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #fafafa;
+  }
+  
+  .page-title {
+    font-size: 1.75rem;
+    margin-bottom: 16px;
+    color: #2c5282;
+  }
+  
+  /* === FILTRITE NUPP JA TAGID === */
+  .clear-filters-btn {
+    background-color: #edf2f7;
+    border: 1px solid #cbd5e0;
+    padding: 6px 12px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .clear-filters-btn:hover {
+    background-color: #e2e8f0;
+  }
+  
+  .active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+  
+  .filter-tag {
+    background-color: #bee3f8;
+    color: #1a365d;
+    padding: 6px 10px;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .remove-btn {
+    background: none;
+    border: none;
+    color: #2c5282;
+    margin-left: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    line-height: 1;
+  }
+  
+  .remove-btn:hover {
+    color: crimson;
+  }
+  .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin-top: 4px;
+    margin-bottom: 1rem;
+  }
+  
+  .checkbox-item {
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .filters-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .wide-input {
+    padding: 10px;
+    font-size: 0.95rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 100%;
+  }
+  
+  .year-inputs {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .year-inputs input {
+    flex: 1;
+    padding: 10px;
+    font-size: 0.95rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  
+  .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin-top: 4px;
+  }
+  
+  .checkbox-item {
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
