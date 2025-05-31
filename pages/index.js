@@ -1,11 +1,11 @@
-/* import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Filters from "@/components/Filters";
 import ActiveFilters from "@/components/ActiveFilters";
 import { FIELDS } from "@/lib/constants";
-import { filterData } from "@/lib/filterData"; */
+import { filterData } from "@/lib/filterData";
 
-/* export default function Home() {
+export default function Home() {
   const [data, setData] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [filters, setFilters] = useState({
@@ -15,19 +15,17 @@ import { filterData } from "@/lib/filterData"; */
     years: { from: "", to: "" },
   });
   const [options, setOptions] = useState({ jobs: [], professions: [] });
-  const [error, setError] = (useState < string) | (null > null); // <--- lisa errori state
+  const [error, setError] = useState(null); // <-- errori state
 
   useEffect(() => {
-    console.log("Fetching /api/data...");
     fetch("/api/data")
       .then((res) => {
         if (!res.ok) {
-          throw new Error(`API error: ${res.status} ${res.statusText}`);
+          throw new Error(`API error: ${res.status}`);
         }
         return res.json();
       })
       .then((result) => {
-        console.log("API vastus saadud:", result);
         setData(result);
         setFiltered(result);
 
@@ -35,10 +33,12 @@ import { filterData } from "@/lib/filterData"; */
         const allProfessions = new Set();
 
         result.forEach((item) => {
-          item[FIELDS.WORKPLACE]?.split(",").map((w) => allJobs.add(w.trim()));
+          item[FIELDS.WORKPLACE]
+            ?.split(",")
+            .forEach((w) => allJobs.add(w.trim()));
           item[FIELDS.PROFESSION]
             ?.split(",")
-            .map((p) => allProfessions.add(p.trim()));
+            .forEach((p) => allProfessions.add(p.trim()));
         });
 
         setOptions({
@@ -47,7 +47,7 @@ import { filterData } from "@/lib/filterData"; */
         });
       })
       .catch((err) => {
-        console.error("Viga API andmete toomisel:", err);
+        console.error("Andmete laadimine ebaõnnestus:", err);
         setError("Andmete laadimisel tekkis viga.");
       });
   }, []);
@@ -59,11 +59,14 @@ import { filterData } from "@/lib/filterData"; */
   return (
     <div className="home-container">
       <h1 className="page-title">Tsunftiga seotud meistrid</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}{" "}
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
       <Filters filters={filters} setFilters={setFilters} options={options} />
+
       {(filters.query ||
-        filters.job ||
-        filters.profession ||
+        filters.job?.length ||
+        filters.profession?.length ||
         filters.years.from ||
         filters.years.to) && (
         <button
@@ -80,7 +83,9 @@ import { filterData } from "@/lib/filterData"; */
           Tühjenda filtrid
         </button>
       )}
+
       <ActiveFilters filters={filters} setFilters={setFilters} />
+
       <div className="table-container">
         <table className="data-table">
           <thead>
@@ -103,20 +108,6 @@ import { filterData } from "@/lib/filterData"; */
           </tbody>
         </table>
       </div>
-    </div>
-  );
-} */
-
-export default function Home() {
-  return (
-    <div style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
-      <h1>Tere tulemast Tsunftimeistrite lehele!</h1>
-      <p>See on testavaleht. Kui sa seda näed, siis deploy töötab! 🎉</p>
-      <ul>
-        <li>✔ SSR on seadistatud</li>
-        <li>✔ Routing töötab</li>
-        <li>✔ Vercel on ühenduses</li>
-      </ul>
     </div>
   );
 }
