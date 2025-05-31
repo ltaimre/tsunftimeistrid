@@ -16,7 +16,5 @@ export async function fetchData() {
     transformHeader: (header) => header.trim(),
     transform: (value) => value.trim(),
   });
-  console.log(parsed);
-
   return parsed;
 }
