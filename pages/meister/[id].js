@@ -1,18 +1,12 @@
 import { fetchData } from "../../utils/fetchData";
 
-export async function getStaticPaths() {
-  const data = await fetchData();
-
-  const paths = data.map((_, index) => ({
-    params: { id: index.toString() },
-  }));
-
-  return { paths, fallback: false };
-}
-
-export async function getStaticProps({ params }) {
+export async function getServerSideProps({ params }) {
   const data = await fetchData();
   const meister = data[params.id];
+
+  if (!meister) {
+    return { notFound: true };
+  }
 
   return {
     props: { meister },
