@@ -54,21 +54,24 @@ export default function Filters({ filters, setFilters, options }) {
       {(options.jobs.length > 0 || filters.job.length > 0) && (
         <div>
           <strong>Töökohad:</strong>
-          <div className="checkbox-group">
-            {options.jobs.map((job) => (
-              <label key={job} className="checkbox-item">
-                <input
-                  type="checkbox"
-                  checked={filters.job.includes(job)}
-                  onChange={() => toggleItem("job", job)}
-                />
-                {job}
-              </label>
-            ))}
-          </div>
+          {options.jobs.length > 0 ? (
+            <div className="checkbox-group">
+              {options.jobs.map((job) => (
+                <label key={job} className="checkbox-item">
+                  <input
+                    type="checkbox"
+                    checked={filters.job.includes(job)}
+                    onChange={() => toggleItem("job", job)}
+                  />
+                  {job}
+                </label>
+              ))}
+            </div>
+          ) : (
+            <p className="empty-note">Töökohad puuduvad</p>
+          )}
         </div>
       )}
-
       {/* Ametid */}
       {(options.professions.length > 0 || filters.profession.length > 0) && (
         <div>
@@ -82,6 +85,23 @@ export default function Filters({ filters, setFilters, options }) {
                   onChange={() => toggleItem("profession", p)}
                 />
                 {p}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+      {(options.ranks?.length > 0 || filters.rank.length > 0) && (
+        <div>
+          <strong>Ametiastmed:</strong>
+          <div className="checkbox-group">
+            {options.ranks.map((r) => (
+              <label key={r} className="checkbox-item">
+                <input
+                  type="checkbox"
+                  checked={filters.rank.includes(r)}
+                  onChange={() => toggleItem("rank", r)}
+                />
+                {r}
               </label>
             ))}
           </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getInitialFilters } from "@/lib/filters";
 import Link from "next/link";
 import Filters from "@/components/Filters";
 import ActiveFilters from "@/components/ActiveFilters";
@@ -8,13 +9,12 @@ import { filterData } from "@/lib/filterData";
 export default function Home() {
   const [data, setData] = useState([]);
   const [filtered, setFiltered] = useState([]);
-  const [filters, setFilters] = useState({
-    query: "",
-    job: [],
-    profession: [],
-    years: { from: "", to: "" },
+  const [filters, setFilters] = useState(getInitialFilters());
+  const [options, setOptions] = useState({
+    jobs: [],
+    professions: [],
+    ranks: [],
   });
-  const [options, setOptions] = useState({ jobs: [], professions: [] });
   const [error, setError] = useState(null); // <-- errori state
 
   useEffect(() => {
@@ -26,25 +26,30 @@ export default function Home() {
         return res.json();
       })
       .then((result) => {
-        setData(result.data);
-        setFiltered(result.data);
+        const parsedData = result.data;
+        setData(parsedData);
+        setFiltered(parsedData);
 
         const allJobs = new Set();
         const allProfessions = new Set();
-        const parsedData = result.data;
+        const allRanks = new Set(); // ⬅️ Ametiastmed
 
         parsedData.forEach((item) => {
           item[FIELDS.WORKPLACE]
             ?.split(",")
             .forEach((w) => allJobs.add(w.trim()));
+
           item[FIELDS.PROFESSION]
             ?.split(",")
             .forEach((p) => allProfessions.add(p.trim()));
+
+          item[FIELDS.RANK]?.split(",").forEach((r) => allRanks.add(r.trim()));
         });
 
         setOptions({
           jobs: Array.from(allJobs),
           professions: Array.from(allProfessions),
+          ranks: Array.from(allRanks), // ⬅️ Uus väärtus ranks jaoks
         });
       })
       .catch((err) => {
@@ -68,15 +73,8 @@ export default function Home() {
         filters.years.from ||
         filters.years.to) && (
         <button
+          onClick={() => setFilters(getInitialFilters())}
           className="clear-filters-btn"
-          onClick={() =>
-            setFilters({
-              query: "",
-              job: [],
-              profession: [],
-              years: { from: "", to: "" },
-            })
-          }
         >
           Tühjenda filtrid
         </button>
