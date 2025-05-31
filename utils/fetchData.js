@@ -1,4 +1,4 @@
-import { parse } from "csv-parse/sync";
+const { parse } = require("csv-parse/sync");
 
 export async function fetchData() {
   const sheetId = process.env.SHEET_ID;
