@@ -15,11 +15,19 @@ export default function Home() {
     years: { from: "", to: "" },
   });
   const [options, setOptions] = useState({ jobs: [], professions: [] });
+  const [error, setError] = (useState < string) | (null > null); // <--- lisa errori state
 
   useEffect(() => {
+    console.log("Fetching /api/data...");
     fetch("/api/data")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`API error: ${res.status} ${res.statusText}`);
+        }
+        return res.json();
+      })
       .then((result) => {
+        console.log("API vastus saadud:", result);
         setData(result);
         setFiltered(result);
 
@@ -37,6 +45,10 @@ export default function Home() {
           jobs: Array.from(allJobs),
           professions: Array.from(allProfessions),
         });
+      })
+      .catch((err) => {
+        console.error("Viga API andmete toomisel:", err);
+        setError("Andmete laadimisel tekkis viga.");
       });
   }, []);
 
@@ -47,7 +59,8 @@ export default function Home() {
   return (
     <div className="home-container">
       <h1 className="page-title">Tsunftiga seotud meistrid</h1>
-
+      {error && <p style={{ color: "red" }}>{error}</p>}{" "}
+      {/* ← Näita veateadet */}
       <Filters filters={filters} setFilters={setFilters} options={options} />
       {(filters.query ||
         filters.job ||
@@ -59,8 +72,8 @@ export default function Home() {
           onClick={() =>
             setFilters({
               query: "",
-              job: "",
-              profession: "",
+              job: [],
+              profession: [],
               years: { from: "", to: "" },
             })
           }
