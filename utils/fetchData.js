@@ -1,4 +1,4 @@
-const { parse } = require("csv-parse/sync");
+const Papa = require("papaparse");
 
 export async function fetchData() {
   const sheetId = process.env.SHEET_ID;
@@ -10,12 +10,13 @@ export async function fetchData() {
   }
   const csvText = await response.text();
 
-  // csv-parse teeb õige parsimise, arvestab ka komasid tekstides
-  const records = parse(csvText, {
-    columns: true,
-    skip_empty_lines: true,
-    trim: true,
+  const parsed = Papa.parse(csvText, {
+    header: true,
+    skipEmptyLines: true,
+    transformHeader: (header) => header.trim(),
+    transform: (value) => value.trim(),
   });
+  console.log(parsed);
 
-  return records;
+  return parsed;
 }

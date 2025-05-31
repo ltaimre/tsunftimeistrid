@@ -26,13 +26,14 @@ export default function Home() {
         return res.json();
       })
       .then((result) => {
-        setData(result);
-        setFiltered(result);
+        setData(result.data);
+        setFiltered(result.data);
 
         const allJobs = new Set();
         const allProfessions = new Set();
+        const parsedData = result.data;
 
-        result.forEach((item) => {
+        parsedData.forEach((item) => {
           item[FIELDS.WORKPLACE]
             ?.split(",")
             .forEach((w) => allJobs.add(w.trim()));
@@ -59,11 +60,8 @@ export default function Home() {
   return (
     <div className="home-container">
       <h1 className="page-title">Tsunftiga seotud meistrid</h1>
-
       {error && <p style={{ color: "red" }}>{error}</p>}
-
       <Filters filters={filters} setFilters={setFilters} options={options} />
-
       {(filters.query ||
         filters.job?.length ||
         filters.profession?.length ||
@@ -83,9 +81,7 @@ export default function Home() {
           Tühjenda filtrid
         </button>
       )}
-
       <ActiveFilters filters={filters} setFilters={setFilters} />
-
       <div className="table-container">
         <table className="data-table">
           <thead>
