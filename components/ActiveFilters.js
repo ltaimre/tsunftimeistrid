@@ -24,7 +24,7 @@ export default function ActiveFilters({ filters, setFilters }) {
   if (filters.profession.length)
     active.push({ label: `Amet: ${filters.profession}`, key: "profession" });
   if (filters.rank.length)
-    active.push({ label: `Ametiastmed: ${filters.rank}`, key: "profession" });
+    active.push({ label: `Ametiastmed: ${filters.rank}`, key: "rank" });
   if (filters.years.from)
     active.push({ label: `Aasta algus: ${filters.years.from}`, key: "from" });
   if (filters.years.to)
