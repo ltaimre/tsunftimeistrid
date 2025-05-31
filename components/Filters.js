@@ -24,30 +24,33 @@ export default function Filters({ filters, setFilters, options }) {
         className="wide-input"
       />
 
-      {/* Aastate vahemik */}
-      <div className="year-inputs">
-        <input
-          type="number"
-          placeholder="Tegutsemisaeg algus"
-          value={filters.years.from}
-          onChange={(e) =>
-            setFilters((prev) => ({
-              ...prev,
-              years: { ...prev.years, from: e.target.value },
-            }))
-          }
-        />
-        <input
-          type="number"
-          placeholder="Tegutsemisaeg lõpp"
-          value={filters.years.to}
-          onChange={(e) =>
-            setFilters((prev) => ({
-              ...prev,
-              years: { ...prev.years, to: e.target.value },
-            }))
-          }
-        />
+      <div>
+        <strong>Tegutsemisvahemik:</strong>
+        <div className="year-range">
+          <input
+            type="number"
+            placeholder="algus"
+            value={filters.years.from}
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                years: { ...prev.years, from: e.target.value },
+              }))
+            }
+          />
+          <span className="dash">–</span>
+          <input
+            type="number"
+            placeholder="lõpp"
+            value={filters.years.to}
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                years: { ...prev.years, to: e.target.value },
+              }))
+            }
+          />
+        </div>
       </div>
 
       {/* Töökohad */}
