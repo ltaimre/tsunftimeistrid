@@ -92,7 +92,7 @@ export default function Home() {
             {filtered.map((item, index) => (
               <tr key={index}>
                 <td>
-                  <Link href={`/meister/${index}`}>
+                  <Link href={`/meister/${item[FIELDS.ID]}`}>
                     {item[FIELDS.NAME.FIRST]}
                   </Link>
                 </td>

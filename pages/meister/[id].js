@@ -2,7 +2,9 @@ import { fetchData } from "../../utils/fetchData";
 
 export async function getServerSideProps({ params }) {
   const data = await fetchData();
-  const meister = data.data[params.id];
+
+  const meister = data.data.find((obj) => obj.ID === params.id);
+  //const meister = data.data[params.id];
   if (!meister) {
     return { notFound: true };
   }
