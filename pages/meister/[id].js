@@ -1,4 +1,5 @@
 import { fetchData } from "../../utils/fetchData";
+import { getObjectImages } from "@/utils/fetchImagesUrl";
 import { filterObject } from "@/lib/filterObject";
 import { DETAIL_FIELDS } from "@/lib/constants";
 
@@ -13,6 +14,14 @@ export async function getServerSideProps({ params }) {
 
   if (meister.elulugu) {
     meister.elulugu = formatText(meister.elulugu);
+  }
+
+  let images = [];
+  try {
+    images = await getObjectImages(1200656);
+    console.log(images);
+  } catch (err) {
+    console.error("Piltide laadimine ebaõnnestus:", err);
   }
 
   return {
