@@ -4,14 +4,30 @@ export async function getServerSideProps({ params }) {
   const data = await fetchData();
 
   const meister = data.data.find((obj) => obj.ID === params.id);
-  //const meister = data.data[params.id];
   if (!meister) {
     return { notFound: true };
+  }
+
+  if (meister.elulugu) {
+    meister.elulugu = formatText(meister.elulugu);
+    console.log(meister.elulugu);
   }
 
   return {
     props: { meister },
   };
+}
+
+// Vormindusfunktsioon – eemaldab reavahetused jms
+function formatText(text) {
+  if (typeof text !== "string") return text;
+  return text
+    .replace(/[\r\n]+/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(/,\s*lk\s*/g, ", lk ")
+    .replace(/\(\s*/g, "(")
+    .replace(/\s*\)/g, ")")
+    .trim();
 }
 
 export default function MeisterDetail({ meister }) {
@@ -27,12 +43,16 @@ export default function MeisterDetail({ meister }) {
             <tr key={key}>
               <td className="label">{key}</td>
               <td>
-                {value?.includes(",") ? (
+                {typeof value === "string" &&
+                value.includes(",") &&
+                key !== "elulugu" ? (
                   <ul>
                     {value.split(",").map((part, idx) => (
                       <li key={idx}>{part.trim()}</li>
                     ))}
                   </ul>
+                ) : key === "elulugu" ? (
+                  <p>{formatText(value)}</p>
                 ) : (
                   value
                 )}
