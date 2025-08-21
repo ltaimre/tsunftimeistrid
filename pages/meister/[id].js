@@ -1,16 +1,18 @@
 import { fetchData } from "../../utils/fetchData";
+import { filterObject } from "@/lib/filterObject";
+import { DETAIL_FIELDS } from "@/lib/constants";
 
 export async function getServerSideProps({ params }) {
   const data = await fetchData();
 
-  const meister = data.data.find((obj) => obj.ID === params.id);
-  if (!meister) {
+  const meisterRaw = data.data.find((obj) => obj.ID === params.id);
+  if (!meisterRaw) {
     return { notFound: true };
   }
+  const meister = filterObject(meisterRaw, DETAIL_FIELDS);
 
   if (meister.elulugu) {
     meister.elulugu = formatText(meister.elulugu);
-    console.log(meister.elulugu);
   }
 
   return {

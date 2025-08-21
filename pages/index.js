@@ -3,7 +3,7 @@ import { getInitialFilters } from "@/lib/filters";
 import Link from "next/link";
 import Filters from "@/components/Filters";
 import ActiveFilters from "@/components/ActiveFilters";
-import { FIELDS } from "@/lib/constants";
+
 import { filterData } from "@/lib/filterData";
 
 export default function Home() {
