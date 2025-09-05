@@ -3,8 +3,8 @@ import { getInitialFilters } from "@/lib/filters";
 import Link from "next/link";
 import Filters from "@/components/Filters";
 import ActiveFilters from "@/components/ActiveFilters";
-
 import { filterData } from "@/lib/filterData";
+import { FIELDS } from "@/lib/constants";
 
 export default function Home() {
   const [data, setData] = useState([]);

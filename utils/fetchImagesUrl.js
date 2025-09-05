@@ -6,7 +6,6 @@ export async function getObjectImages(id) {
   if (!response.ok) throw new Error(`Viga: ${response.status}`);
 
   const xmlText = await response.text();
-  console.log(xmlText);
 
   const parser = new XMLParser({
     ignoreAttributes: false,
