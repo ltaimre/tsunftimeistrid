@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
-import { getInitialFilters } from "@/lib/filters";
+// pages/index.js
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Filters from "@/components/Filters";
 import ActiveFilters from "@/components/ActiveFilters";
+import { getInitialFilters } from "@/lib/filters";
 import { filterData } from "@/lib/filterData";
 import { FIELDS } from "@/lib/constants";
 
@@ -12,64 +13,96 @@ export default function Home() {
   const [filters, setFilters] = useState(getInitialFilters());
   const [options, setOptions] = useState({
     jobs: [],
+    jobsByCountry: [],
     professions: [],
     ranks: [],
   });
-  const [error, setError] = useState(null); // <-- errori state
+  const [error, setError] = useState(null);
+
+  const etCollator = useMemo(() => new Intl.Collator("et"), []);
+  const toOneWord = (s) => (s || "").trim().split(/\s+/)[0];
+  const splitMulti = (s) =>
+    (s || "")
+      .split(",")
+      .map((x) => x.trim())
+      .filter(Boolean);
 
   useEffect(() => {
-    fetch("/api/data")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`API error: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then((result) => {
-        const parsedData = result.data;
-        setData(parsedData);
-        setFiltered(parsedData);
+    async function load() {
+      try {
+        // 1) põhiandmed
+        const r1 = await fetch("/api/data");
+        if (!r1.ok) throw new Error(`API /data error: ${r1.status}`);
+        const { data: rows } = await r1.json();
+
+        // 2) valikud (city->country)
+        const r2 = await fetch("/api/valikud");
+        if (!r2.ok) throw new Error(`API /valikud error: ${r2.status}`);
+        const { map: cityCountryMap } = await r2.json();
+
+        setData(rows);
+        setFiltered(rows);
 
         const allJobs = new Set();
         const allProfessions = new Set();
-        const allRanks = new Set(); // ⬅️ Ametiastmed
+        const allRanks = new Set();
 
-        parsedData.forEach((item) => {
-          item[FIELDS.WORKPLACE]
-            ?.split(",")
-            .forEach((w) => allJobs.add(w.trim()));
-
-          item[FIELDS.PROFESSION]
-            ?.split(",")
-            .forEach((p) => allProfessions.add(p.trim()));
-
-          item[FIELDS.RANK]?.split(",").forEach((r) => allRanks.add(r.trim()));
+        rows.forEach((item) => {
+          splitMulti(item[FIELDS.WORKPLACE]).forEach((w) =>
+            allJobs.add(toOneWord(w))
+          );
+          splitMulti(item[FIELDS.PROFESSION]).forEach(
+            (p) => p && allProfessions.add(p)
+          );
+          splitMulti(item[FIELDS.RANK]).forEach((r) => r && allRanks.add(r));
         });
+
+        // Grupeeri riikide kaupa Valikute kaardi alusel
+        const byCountry = new Map(); // country -> Set(cities)
+        for (const city of allJobs) {
+          const country = cityCountryMap[city] || "Määramata";
+          if (!byCountry.has(country)) byCountry.set(country, new Set());
+          byCountry.get(country).add(city);
+        }
+
+        const jobsByCountry = Array.from(byCountry.entries())
+          .sort(([a], [b]) => etCollator.compare(a, b))
+          .map(([country, cities]) => ({
+            country,
+            cities: Array.from(cities).sort(etCollator.compare),
+          }));
 
         setOptions({
-          jobs: Array.from(allJobs),
-          professions: Array.from(allProfessions),
-          ranks: Array.from(allRanks), // ⬅️ Uus väärtus ranks jaoks
+          jobs: Array.from(allJobs).sort(etCollator.compare),
+          jobsByCountry,
+          professions: Array.from(allProfessions).sort(etCollator.compare),
+          ranks: Array.from(allRanks).sort(etCollator.compare),
         });
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Andmete laadimine ebaõnnestus:", err);
         setError("Andmete laadimisel tekkis viga.");
-      });
-  }, []);
+      }
+    }
+    load();
+  }, [etCollator]);
 
+  // hoia filtreerimisel linnad ühesõnaliselt
   useEffect(() => {
-    setFiltered(filterData(data, filters));
+    const patched = { ...filters, job: (filters.job || []).map(toOneWord) };
+    setFiltered(filterData(data, patched));
   }, [filters, data]);
 
   return (
     <div className="home-container">
       <h1 className="page-title">Tsunftiga seotud meistrid</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
+
       <Filters filters={filters} setFilters={setFilters} options={options} />
+
       {(filters.query ||
         filters.job?.length ||
         filters.profession?.length ||
+        filters.rank?.length ||
         filters.years.from ||
         filters.years.to) && (
         <button
@@ -79,7 +112,9 @@ export default function Home() {
           Tühjenda filtrid
         </button>
       )}
+
       <ActiveFilters filters={filters} setFilters={setFilters} />
+
       <div className="table-container">
         <table className="data-table">
           <thead>
