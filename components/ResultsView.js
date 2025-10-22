@@ -1,10 +1,10 @@
-// components/ResultsView.jsx
 "use client";
 import React, { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import ResultsTable from "./ResultsTable";
 import Pagination from "./Pagination";
 import SearchSummary from "./SearchSummary";
+import useDebouncedEffect from "@/hooks/useDebouncedEffect";
 import { RESULTS_PER_PAGE as DEFAULT_PAGE_SIZE } from "@/lib/constants";
 
 export default function ResultsView({
@@ -16,13 +16,12 @@ export default function ResultsView({
   const router = useRouter();
   const { asPath, pathname, isReady } = router;
 
-  // loe query-string (pages-routeris mugavaim viis)
+  // 1) loe query
   const search = asPath.split("?")[1] || "";
   const params = useMemo(() => new URLSearchParams(search), [search]);
 
   const urlPage = Number(params.get(queryKeyPage) || "1");
   const urlPageSize = Number(params.get(queryKeyPageSize) || String(pageSize));
-
   const effectivePageSize =
     Number.isFinite(urlPageSize) && urlPageSize > 0 ? urlPageSize : pageSize;
 
@@ -33,7 +32,7 @@ export default function ResultsView({
       ? Math.min(urlPage, totalPages)
       : 1;
 
-  // arvuta slice
+  // 2) slice vaate jaoks
   const { pageItems, from, to } = useMemo(() => {
     const start = (current - 1) * effectivePageSize;
     const end = Math.min(start + effectivePageSize, total);
@@ -44,34 +43,63 @@ export default function ResultsView({
     };
   }, [filtered, current, effectivePageSize, total]);
 
-  // util: ehita ja pane URL
-  const pushParams = (upd) => {
+  // util: push/replace params
+  const replaceParams = (upd) => {
+    // muuda URL-i ainult / lehel
+    if (pathname !== "/") return;
+
     const next = new URLSearchParams(params.toString());
     Object.entries(upd).forEach(([k, v]) => {
       if (v === undefined || v === null || v === "") next.delete(k);
       else next.set(k, String(v));
     });
     const qs = next.toString();
-    // shallow + no scroll
+    router.replace(`${pathname}${qs ? `?${qs}` : ""}`, undefined, {
+      shallow: true,
+      scroll: false,
+    });
+  };
+
+  const pushParams = (upd) => {
+    if (pathname !== "/") return;
+    const next = new URLSearchParams(params.toString());
+    Object.entries(upd).forEach(([k, v]) => {
+      if (v === undefined || v === null || v === "") next.delete(k);
+      else next.set(k, String(v));
+    });
+    const qs = next.toString();
     router.push(`${pathname}${qs ? `?${qs}` : ""}`, undefined, {
       shallow: true,
       scroll: false,
     });
   };
 
-  // filtrite muutumisel → tagasi lehele 1 (ja hoia pageSize)
-  useEffect(() => {
-    if (!isReady) return;
-    // ära tee asjatut navigatsiooni, kui juba 1
-    if ((params.get(queryKeyPage) || "1") !== "1") {
-      pushParams({
+  // 3) kui filtered muutub, mine (debounce'itult) lehele 1 — ainult siis, kui praegu pole 1
+  useDebouncedEffect(
+    () => {
+      if (!isReady) return;
+      if (pathname !== "/") return;
+
+      const currentPageStr = params.get(queryKeyPage) || "1";
+      if (currentPageStr === "1") return; // juba 1, ära tee asjatut replace'i
+
+      replaceParams({
         [queryKeyPage]: 1,
         [queryKeyPageSize]: effectivePageSize,
       });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtered, isReady]);
+    },
+    [
+      filtered,
+      isReady,
+      pathname,
+      effectivePageSize,
+      queryKeyPage,
+      queryKeyPageSize,
+    ],
+    250
+  );
 
+  // 4) lehe vahetus (kasuta push, et ajaloos oleks leheküljevahetused)
   const setPage = (next) => {
     const clamped = Math.max(1, Math.min(next, totalPages));
     pushParams({
@@ -80,35 +108,12 @@ export default function ResultsView({
     });
   };
 
-  // (valikuline) lehekülje suuruse muutus – kui otsustad UI-s lubada
-  const setPageSize = (nextSize) => {
-    const size = Math.max(1, Number(nextSize) || pageSize);
-    pushParams({
-      [queryKeyPageSize]: size,
-      [queryKeyPage]: 1, // uue suurusega esimesse lehte
-    });
-  };
-
   return (
     <section className="results-view">
       <div className="results-toolbar">
         <SearchSummary total={total} from={from} to={to} />
-        {/* Kui tahad lubada pageSize valikut, ava allolev blokk:
-        <label className="page-size">
-          Vastuseid lehel:
-          <select
-            value={effectivePageSize}
-            onChange={(e) => setPageSize(e.target.value)}
-          >
-            {[10, 20, 50, 100].map((n) => (
-              <option key={n} value={n}>{n}</option>
-            ))}
-          </select>
-        </label> */}
       </div>
-
       <ResultsTable items={pageItems} />
-
       <Pagination
         current={current}
         totalPages={totalPages}
