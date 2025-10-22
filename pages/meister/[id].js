@@ -1,3 +1,7 @@
+// pages/meister/[id].js
+import Link from "next/link";
+import { useRouter } from "next/router";
+
 import { fetchData } from "../../utils/fetchData";
 import { extractMuseaalId } from "@/utils/parseMuisUrl";
 import { buildMuisLink } from "@/utils/buildMuisLink";
@@ -21,7 +25,6 @@ export async function getServerSideProps({ params }) {
   const link = buildMuisLink(idFromLink);
 
   let images = [];
-  console.log(images);
   if (idFromLink) {
     try {
       images = await getObjectImages(idFromLink);
@@ -51,8 +54,18 @@ function formatText(text) {
 }
 
 export default function MeisterDetail({ meister, images, link }) {
+  const router = useRouter();
+  // võta detaili-URL-ist query-string ja kasuta seda tagasi avalehele minnes
+  const query = router.asPath.split("?")[1] || "";
+  const backHref = `/${query ? `?${query}` : ""}`;
+
   return (
     <div className="meister-detail">
+      {/* Tagasi nimekirja – hoiab alles filtrid ja lehekülje */}
+      <p style={{ marginBottom: 12 }}>
+        <Link href={backHref}>← Tagasi nimekirja</Link>
+      </p>
+
       <h1>
         {meister.Eesnimi} {meister.Perekonnanimi}
       </h1>
