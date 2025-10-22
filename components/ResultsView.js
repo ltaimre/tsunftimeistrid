@@ -1,21 +1,12 @@
+// components/ResultsView.jsx
 "use client";
 import React, { useEffect, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/router";
 import ResultsTable from "./ResultsTable";
 import Pagination from "./Pagination";
 import SearchSummary from "./SearchSummary";
-import { RESULTS_PER_PAGE as DEFAULT_PAGE_SIZE } from "@/lib/constants"; // loo see konstant
+import { RESULTS_PER_PAGE as DEFAULT_PAGE_SIZE } from "@/lib/constants";
 
-/**
- * Props:
- * - filtered: kogu filtreeritud massiiv (Array<object>)
- * - pageSize?: number (kui tahad vaikimisi konstandist erineda)
- * - queryKeyPage?: string (vaikimisi "page")
- * - queryKeyPageSize?: string (vaikimisi "pageSize")
- *
- * URL sünkroon:
- *   /…?page=2&pageSize=20
- */
 export default function ResultsView({
   filtered,
   pageSize = DEFAULT_PAGE_SIZE ?? 20,
@@ -23,16 +14,18 @@ export default function ResultsView({
   queryKeyPageSize = "pageSize",
 }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const { asPath, pathname, isReady } = router;
 
-  // loe URL-ist
-  const urlPage = Number(searchParams.get(queryKeyPage) || "1");
-  const urlPageSize = Number(
-    searchParams.get(queryKeyPageSize) || String(pageSize)
-  );
+  // loe query-string (pages-routeris mugavaim viis)
+  const search = asPath.split("?")[1] || "";
+  const params = useMemo(() => new URLSearchParams(search), [search]);
+
+  const urlPage = Number(params.get(queryKeyPage) || "1");
+  const urlPageSize = Number(params.get(queryKeyPageSize) || String(pageSize));
 
   const effectivePageSize =
     Number.isFinite(urlPageSize) && urlPageSize > 0 ? urlPageSize : pageSize;
+
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / effectivePageSize));
   const current =
@@ -51,39 +44,56 @@ export default function ResultsView({
     };
   }, [filtered, current, effectivePageSize, total]);
 
-  // kui filtrid muutuvad (massivi referents muutub), läheb leht 1 peale
-  useEffect(() => {
-    const sp = new URLSearchParams(searchParams.toString());
-    sp.set(queryKeyPage, "1");
-    sp.set(queryKeyPageSize, String(effectivePageSize));
-    router.replace(`?${sp.toString()}`, { scroll: false });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtered]);
-
-  // lehe vahetus -> URL-i uuendus
-  const setPage = (next) => {
-    const clamped = Math.max(1, Math.min(next, totalPages));
-    const sp = new URLSearchParams(searchParams.toString());
-    sp.set(queryKeyPage, String(clamped));
-    sp.set(queryKeyPageSize, String(effectivePageSize));
-    router.push(`?${sp.toString()}`, { scroll: false });
+  // util: ehita ja pane URL
+  const pushParams = (upd) => {
+    const next = new URLSearchParams(params.toString());
+    Object.entries(upd).forEach(([k, v]) => {
+      if (v === undefined || v === null || v === "") next.delete(k);
+      else next.set(k, String(v));
+    });
+    const qs = next.toString();
+    // shallow + no scroll
+    router.push(`${pathname}${qs ? `?${qs}` : ""}`, undefined, {
+      shallow: true,
+      scroll: false,
+    });
   };
 
-  // (valikuline) lehekülje suuruse muutmine – kui tahad kuvada valikut
+  // filtrite muutumisel → tagasi lehele 1 (ja hoia pageSize)
+  useEffect(() => {
+    if (!isReady) return;
+    // ära tee asjatut navigatsiooni, kui juba 1
+    if ((params.get(queryKeyPage) || "1") !== "1") {
+      pushParams({
+        [queryKeyPage]: 1,
+        [queryKeyPageSize]: effectivePageSize,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtered, isReady]);
+
+  const setPage = (next) => {
+    const clamped = Math.max(1, Math.min(next, totalPages));
+    pushParams({
+      [queryKeyPage]: clamped,
+      [queryKeyPageSize]: effectivePageSize,
+    });
+  };
+
+  // (valikuline) lehekülje suuruse muutus – kui otsustad UI-s lubada
   const setPageSize = (nextSize) => {
     const size = Math.max(1, Number(nextSize) || pageSize);
-    const sp = new URLSearchParams(searchParams.toString());
-    sp.set(queryKeyPageSize, String(size));
-    sp.set(queryKeyPage, "1"); // uue suurusega algusesse
-    router.push(`?${sp.toString()}`, { scroll: false });
+    pushParams({
+      [queryKeyPageSize]: size,
+      [queryKeyPage]: 1, // uue suurusega esimesse lehte
+    });
   };
 
   return (
     <section className="results-view">
       <div className="results-toolbar">
         <SearchSummary total={total} from={from} to={to} />
-        {/* (valikuline) lehekülje suuruse valik – soovi korral näita: */}
-        {/* 
+        {/* Kui tahad lubada pageSize valikut, ava allolev blokk:
         <label className="page-size">
           Vastuseid lehel:
           <select
@@ -94,8 +104,7 @@ export default function ResultsView({
               <option key={n} value={n}>{n}</option>
             ))}
           </select>
-        </label>
-        */}
+        </label> */}
       </div>
 
       <ResultsTable items={pageItems} />
