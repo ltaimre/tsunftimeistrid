@@ -1,11 +1,10 @@
-import Link from "next/link";
-import { useRouter } from "next/router";
 import { fetchData } from "../../utils/fetchData";
 import { extractMuseaalId } from "@/utils/parseMuisUrl";
 import { buildMuisLink } from "@/utils/buildMuisLink";
 import { getObjectImages } from "@/utils/fetchImagesUrl";
 import { filterObject } from "@/lib/filterObject";
 import { DETAIL_FIELDS } from "@/lib/constants";
+
 import MuisImage from "@/components/MuisImage";
 
 export async function getServerSideProps({ params }) {
@@ -22,17 +21,24 @@ export async function getServerSideProps({ params }) {
   const link = buildMuisLink(idFromLink);
 
   let images = [];
+  console.log(images);
   if (idFromLink) {
     try {
       images = await getObjectImages(idFromLink);
     } catch (err) {
       console.error("Piltide laadimine ebaõnnestus:", err);
     }
+  } else {
+    console.warn(
+      "MUIS linki ei leitud või ID ei õnnestunud välja võtta:",
+      rawLink
+    );
   }
 
   return { props: { meister, images, link } };
 }
 
+// Vormindusfunktsioon – eemaldab reavahetused jms
 function formatText(text) {
   if (typeof text !== "string") return text;
   return text
@@ -45,38 +51,13 @@ function formatText(text) {
 }
 
 export default function MeisterDetail({ meister, images, link }) {
-  const router = useRouter();
-
-  let backQuery = router.query;
-
-  // fallback: kui tuldi otse/bookmarkiga
-  if (
-    typeof window !== "undefined" &&
-    (!backQuery || Object.keys(backQuery).length === 1)
-  ) {
-    const raw = sessionStorage.getItem("searchState");
-    if (raw) {
-      const saved = JSON.parse(raw);
-      if (saved?.query) backQuery = saved.query;
-    }
-  }
-
-  const backHref = { pathname: "/", query: { ...backQuery, id: undefined } };
-
   return (
     <div className="meister-detail">
-      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-        <button
-          type="button"
-          onClick={() => router.back()}
-        >{`← Tagasi`}</button>
-        <Link href={backHref}>{`Tagasi otsingusse`}</Link>
-      </div>
-
       <h1>
         {meister.Eesnimi} {meister.Perekonnanimi}
       </h1>
 
+      {/* Pildid */}
       {images?.length > 0 && (
         <div className="meister-images">
           {images.map((imgUrl, idx) => (
