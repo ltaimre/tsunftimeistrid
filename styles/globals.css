@@ -1,271 +1,568 @@
-/* === TABELID === */
+/************************************************************
+ * TABELID / LISTID
+ ************************************************************/
+
+/* horisontaalne scroll kitsastel ekraanidel */
 .table-container {
-    overflow-x: auto;
-    margin-top: 1rem;
-  }
-  
-  .data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 0.95rem;
-    border: 1px solid #bbb;
-    background-color: #fff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-  
-  .data-table th,
-  .data-table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .data-table th {
-    background-color: #eaf4ff;
-    color: #333;
-    text-align: left;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-  }
-  
-  .data-table tr:nth-child(even) td {
-    background-color: #f9f9f9;
-  }
-  
-  .data-table tr:hover td {
-    background-color: #f1faff;
-  }
-  
-  /* === DETAILVAATE TABEL === */
-  .meister-detail {
-    padding: 24px;
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #fdfdfd;
-  }
-  
-  .meister-detail h1 {
-    font-size: 1.75rem;
-    margin-bottom: 24px;
-    color: #1a202c;
-  }
-  
-  .meister-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.95rem;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    overflow: hidden;
-  }
-  
-  .meister-table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid #ddd;
-    vertical-align: top;
-  }
-  
-  .meister-table .label {
-    font-weight: bold;
-    width: 30%;
-    background-color: #f6f6f6;
-  }
-  
-  /* === FILTRID === */
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+/* põhilaud */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.95rem;
+  border: 1px solid #bbb;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.data-table th,
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.data-table th {
+  background-color: #eaf4ff;
+  color: #333;
+  text-align: left;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.data-table tr:nth-child(even) td {
+  background-color: #f9f9f9;
+}
+
+.data-table tr:hover td {
+  background-color: #f1faff;
+}
+
+
+/************************************************************
+ * DETAILVAATE TABEL
+ ************************************************************/
+
+.meister-detail {
+  padding: 24px;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fdfdfd;
+}
+
+.meister-detail h1 {
+  font-size: 1.75rem;
+  margin-bottom: 24px;
+  color: #1a202c;
+}
+
+.meister-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.meister-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #ddd;
+  vertical-align: top;
+}
+
+.meister-table .label {
+  font-weight: bold;
+  width: 30%;
+  background-color: #f6f6f6;
+}
+
+
+/************************************************************
+ * AVALAEHT / ÜLDISED PEALKIRJAD
+ ************************************************************/
+
+.home-container {
+  padding: 24px;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fafafa;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  margin-bottom: 16px;
+  color: #2c5282;
+}
+
+
+/************************************************************
+ * FILTRID – LAYOUT JA SISENDID
+ ************************************************************/
+
+/* vasak filter-kolumn */
+.filters-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* otsilahter (täislaiuses) */
+.wide-input {
+  padding: 10px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+}
+
+/* grid paigutus väiksematel ekraanidel 1 veerg, suurematel 2 */
+.filters-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
   .filters-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: repeat(2, 1fr);
   }
-  
-  @media (min-width: 768px) {
-    .filters-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  
-  .filters-grid input,
-  .filters-grid select {
-    padding: 10px;
-    border: 1px solid #bbb;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    transition: border 0.2s;
-  }
-  
-  .filters-grid input:focus,
-  .filters-grid select:focus {
-    border-color: #3182ce;
-    outline: none;
-  }
-  
-  .year-inputs {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .year-inputs input {
-    flex: 1;
-  }
-  
-  /* === AVALAEHT === */
-  .home-container {
-    padding: 24px;
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #fafafa;
-  }
-  
-  .page-title {
-    font-size: 1.75rem;
-    margin-bottom: 16px;
-    color: #2c5282;
-  }
-  
-  /* === FILTRITE NUPP JA TAGID === */
-  .clear-filters-btn {
-    background-color: #edf2f7;
-    border: 1px solid #cbd5e0;
-    padding: 6px 12px;
-    margin-bottom: 16px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-  }
-  
-  .clear-filters-btn:hover {
-    background-color: #e2e8f0;
-  }
-  
-  .active-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 1rem;
-  }
-  
-  .filter-tag {
-    background-color: #bee3f8;
-    color: #1a365d;
-    padding: 6px 10px;
-    border-radius: 16px;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-  }
-  
-  .remove-btn {
-    background: none;
-    border: none;
-    color: #2c5282;
-    margin-left: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 1rem;
-    line-height: 1;
-  }
-  
-  .remove-btn:hover {
-    color: crimson;
-  }
-  .checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 12px;
-    margin-top: 4px;
-    margin-bottom: 1rem;
-  }
-  
-  .checkbox-item {
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
+}
 
-  .filters-column {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .wide-input {
-    padding: 10px;
-    font-size: 0.95rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    width: 100%;
-  }
-  
-  .year-inputs {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .year-inputs input {
-    flex: 1;
-    padding: 10px;
-    font-size: 0.95rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-  }
-  
-  .checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 12px;
-    margin-top: 4px;
-  }
-  
-  .checkbox-item {
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .year-range {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 4px;
-  }
-  
-  .year-range input {
-    width: 100%;
-    max-width: 120px;
-    padding: 8px;
-    font-size: 0.95rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .dash {
-    font-size: 1.2rem;
-    color: #333;
-  }
+/* üldised sisendstiilid gridi sees */
+.filters-grid input,
+.filters-grid select {
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border 0.2s;
+}
 
+.filters-grid input:focus,
+.filters-grid select:focus {
+  border-color: #3182ce;
+  outline: none;
+}
+
+/* aastavahemiku horisontaalne paigutus */
+.year-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.year-range input {
+  width: 100%;
+  max-width: 120px;
+  padding: 8px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.dash {
+  font-size: 1.2rem;
+  color: #333;
+}
+
+/* paindlik kahest aastaväljast koosnev rida (kasutus kohtades, kus pole .year-range) */
+.year-inputs {
+  display: flex;
+  gap: 8px;
+}
+
+.year-inputs input {
+  flex: 1;
+  padding: 10px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* mitmikvaliku checkbox-rühmad */
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 4px;
+  margin-bottom: 1rem;
+}
+
+.checkbox-item {
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+
+/************************************************************
+ * AKTIIVSED FILTRID / NUPUD
+ ************************************************************/
+
+/* “tühjenda filtrid” kahvatu nupp */
+.clear-filters-btn {
+  background-color: #edf2f7;
+  border: 1px solid #cbd5e0;
+  padding: 6px 12px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.clear-filters-btn:hover {
+  background-color: #e2e8f0;
+}
+
+/* aktiivsete filtrite “tagid” */
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.filter-tag {
+  background-color: #bee3f8;
+  color: #1a365d;
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+}
+
+/* X nupp tag’il */
+.remove-btn {
+  background: none;
+  border: none;
+  color: #2c5282;
+  margin-left: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.remove-btn:hover {
+  color: crimson;
+}
+
+
+/************************************************************
+ * TÖÖKOHAD – RIIGID & LINNAD (AKORDION)
+ ************************************************************/
+
+/* “riikide grupp” – jääb alles, kui seda kasutatakse mujal */
 .country-group .country-block { margin-bottom: 0.75rem; }
 .country-group .country-title { font-weight: 600; margin: 0.25rem 0; }
 .country-group .cities { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; }
 
+/* akordioni üksikud sektsioonid */
 .country-accordion .country-section { border-bottom: 1px solid #eee; }
+
+/* ÜLDINE akordioninupp (kasutatakse nii advanced-nupul kui riiginuppudel;
+   advanced-nupu jaoks tuleb allpool täpsem selektor, mis selle visuaalselt üle kirjutab) */
 .country-header {
-  display: flex; align-items: center; gap: .5rem;
-  width: 100%; padding: .25rem 0;
-  background: none; border: 0; cursor: pointer; text-align: left;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: 100%;
+  padding: .25rem 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
 }
+
 .country-header:hover { background: rgba(0,0,0,0.03); }
+
+/* väike nooleke */
 .chevron { display: inline-block; transition: transform .15s ease; }
 .chevron.open { transform: rotate(90deg); }
+
+/* pealkiri + optional badge */
 .country-title { font-weight: 600; display: inline-flex; align-items: center; gap: .5rem; }
+
+/* neutraalne badge (riikide lõikes valitud linnad) */
 .badge {
-  font-weight: 600; font-size: .75rem; padding: 0 .4rem; border-radius: .5rem;
+  font-weight: 600;
+  font-size: .75rem;
+  padding: 0 .4rem;
+  border-radius: .5rem;
   background: #eaeaea;
 }
-.cities { margin: .25rem 0 .5rem 1.25rem; display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
+
+/* linnade konteiner */
+.cities {
+  margin: .25rem 0 .5rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+}
+
+
+/************************************************************
+ * ADVANCED-TOGGLE (“Otsi täpsemalt”) – eristuvalt esmane
+ * NB! JSX-i muuta pole vaja; sihime aria-controls atribuuti
+ ************************************************************/
+
+/* eristuv, suurem nupp – ainult see, millel aria-controls="advanced-filters" */
+.country-header[aria-controls="advanced-filters"] {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+
+  width: 100%;
+  padding: .75rem .9rem;
+  border-radius: 10px;
+
+  background: #eef4ff;           /* pehme sinakas taust */
+  border: 1px solid #c9d6ff;     /* eristuv ääris */
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+  color: #1a237e;                /* tumedam sinine tekst */
+
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: .1px;
+  cursor: pointer;
+
+  transition:
+    background-color .15s ease,
+    box-shadow .15s ease,
+    transform .05s ease;
+  min-height: 44px;              /* parem tabatavus */
+}
+
+.country-header[aria-controls="advanced-filters"]:hover {
+  background: #e5edff;
+  box-shadow: 0 2px 6px rgba(26, 35, 126, 0.12);
+}
+
+.country-header[aria-controls="advanced-filters"]:active {
+  transform: translateY(1px);
+}
+
+.country-header[aria-controls="advanced-filters"]:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* suurem chevron */
+.country-header[aria-controls="advanced-filters"] .chevron {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+/* pealkiri & badge erksamad toonid */
+.country-header[aria-controls="advanced-filters"] .country-title {
+  color: #0f1b61;
+}
+
+.country-header[aria-controls="advanced-filters"] .badge {
+  background: #3b82f6;
+  color: #fff;
+  border-radius: 10px;
+  padding: 0 .5rem;
+  font-weight: 700;
+}
+
+/* samal ajal hoia riikide akordioni nupud tagasihoidlikumad,
+   et mitte konkureerida advanced-nupuga */
+.country-accordion .country-header {
+  padding: .35rem 0;
+  background: transparent;
+  border: 0;
+  color: #374151;
+  font-weight: 600;
+  box-shadow: none;
+  min-height: 32px;
+}
+
+.country-accordion .country-header:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.country-accordion .country-header .badge {
+  background: #eaeaea;
+  color: #333;
+}
+
+.country-accordion .country-header .chevron {
+  font-size: .95rem;
+}
+
+/************************************************************
+ * TÄPSUSTUSED: Advanced-nupp kompaktsemaks + plokkide vahed
+ ************************************************************/
+
+/* vaikimisi: nupp on kompaktne, mitte täislaiuses */
+.country-header[aria-controls="advanced-filters"] {
+  width: auto;                /* ⟵ enam pole 100% */
+  display: inline-flex;       /* hoiab sisu reas, võtab oma loomuliku laiuse */
+  max-width: 100%;            /* ei murra layouti kitsastes konteinerites */
+  margin: .25rem 0 .5rem;     /* veidi õhku ümber nupu */
+  padding: .6rem .85rem;      /* natuke kompaktsem vertikaalne rütm */
+}
+
+/* telefoni ekraanidel jäta täislaius hea tabatavuse nimel */
+@media (max-width: 480px) {
+  .country-header[aria-controls="advanced-filters"] {
+    width: 100%;
+    display: flex;
+  }
+}
+
+/* suurem vertikaalne vahe iga täpsema filtribloki vahel
+   (nt Tegutsemisvahemik, Töökohad, Ametid, Ametiastmed) */
+#advanced-filters > div {
+  margin-top: 1rem;
+  padding-top: .25rem;
+  margin-bottom: 1.1rem;      /* ⟵ suurenda vahet */
+  border-top: 0;              /* hoia puhas – ääriseid ei lisa */
+}
+
+/* kui kasutad <strong> pealkirjana, tee sellele ka väike vahe */
+#advanced-filters strong {
+  display: inline-block;
+  margin-bottom: .35rem;
+}
+
+/* riikide akordioni sees: lase ridadel natuke rohkem hingata */
+.country-accordion .country-section {
+  padding-bottom: .4rem;
+  margin-bottom: .5rem;
+}
+
+/* linnade loendi ja eelmise pealkirja vahele veidi ruumi */
+.cities {
+  margin: .35rem 0 .7rem 1.25rem;
+}
+
+/* üldine filters-column vahe võib ka sammukese kasvada,
+   kui tunned, et vaja – täiesti valikuline */
+.filters-column {
+  gap: 1.5rem; /* oli 1.25rem */
+}
+
+/************************************************************
+ * RIIGID PAREMINI LOETAVAKS: grid + kaardid + sisemine scroll
+ ************************************************************/
+
+/* Pane riigid mitmesse tulpa – kaardid, mis murravad vastavalt laiusele */
+.country-accordion {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px; /* vahe kaartide vahel */
+}
+
+/* Iga riik eraldi “kaart” */
+.country-accordion .country-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  padding: .25rem .5rem; /* kompaktne sisemine polster */
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.country-accordion .country-section:hover {
+  border-color: #cfd6e4;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+/* Riigi päis kaartidel – hoia kompaktne, eralda visuaalselt linnadest */
+.country-accordion .country-header {
+  padding: .4rem .25rem;
+  background: transparent;
+  border: 0;
+  color: #1f2937;
+  font-weight: 700;
+  min-height: 36px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-radius: 8px 8px 0 0;
+}
+
+.country-accordion .country-header .chevron {
+  font-size: .95rem;
+}
+
+/* Kui kaart on avatud, jäta päis rõhutatuks */
+.country-accordion .country-header[aria-expanded="true"] {
+  background: linear-gradient(0deg, rgba(0,0,0,0.02), rgba(0,0,0,0.02));
+}
+
+/* Linnade konteiner – maks kõrgus ja sisemine kerimine */
+.country-accordion .cities {
+  margin: .4rem 0 .6rem 0; /* võtame vasaku indentatsiooni maha kaartide sees */
+  padding: .25rem .25rem .25rem 0;
+  max-height: 180px;      /* ⟵ pikkade riikide puhul ei veni kaart liigselt */
+  overflow: auto;         /* sisemine scroll */
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem .6rem;
+}
+
+/* Kerimisriba veidi diskreetsem (toetatud brauserid) */
+.country-accordion .cities::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.country-accordion .cities::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+.country-accordion .cities::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Linnade checkbox'id kui “kiibid” (pill-kujul) – loetavamad klastrid */
+.country-accordion .cities .checkbox-item {
+  background: #f7fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  padding: .25rem .55rem;
+  gap: .35rem;
+  line-height: 1.2;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+
+.country-accordion .cities .checkbox-item:hover {
+  background: #eef2f7;
+  border-color: #d7dee8;
+}
+
+/* Muuda checkbox ise veidi selgemaks kiibi sees */
+.country-accordion .cities .checkbox-item input[type="checkbox"] {
+  margin: 0;
+}
+
+/* Badge (valitud linnade loendur) taust veidi erksam – kaartidel silmatorkavam */
+.country-accordion .country-header .badge {
+  background: #e3eafc;
+  color: #203a8f;
+  font-weight: 700;
+}
+
+/* Väikestel ekraanidel 1 veerg – loetavus säilib */
+@media (max-width: 640px) {
+  .country-accordion {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+/* Kui soovid veel kompaktsemat kaarti, võid veidi vähendada max-height'i:
+   .country-accordion .cities { max-height: 150px; } */
 
