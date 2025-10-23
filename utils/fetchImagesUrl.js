@@ -22,7 +22,7 @@ export async function getObjectImages(id) {
   if (!items) return [];
 
   // Kui ainult üks li, tee array
-  items = Array.isArray(items) ? items : [items];
+  items = Array.isArray(items) ? [items[0]] : [items];
 
   const urls = [];
 

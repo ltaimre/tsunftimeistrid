@@ -16,7 +16,6 @@ export default function ActiveFilters({ filters, setFilters }) {
   };
 
   const active = [];
-  console.log(filters);
   if (filters.query)
     active.push({ label: `Otsing: ${filters.query}`, key: "query" });
   if (filters.job.length)

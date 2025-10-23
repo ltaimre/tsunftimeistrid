@@ -165,7 +165,6 @@ export default function MeisterDetail({
   externalLinks,
 }) {
   const router = useRouter();
-
   // Ehita "tagasi" href säilitades päringuparameetrid
   const qs = new URLSearchParams(router.query || {}).toString();
   const backHref = `/${qs ? `?${qs}` : ""}`;
