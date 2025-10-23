@@ -10,38 +10,73 @@ import { filterObject } from "@/lib/filterObject";
 import { DETAIL_FIELDS } from "@/lib/constants";
 
 import MuisImage from "@/components/MuisImage";
+import ExternalLinkCard from "@/components/ExternalLinkCard";
 
-export async function getServerSideProps({ params }) {
-  const data = await fetchData();
+/**
+ * Normaliseeri toorlingid:
+ * - lõika ; , ja whitespace'i järgi
+ * - trimmi
+ * - valideeri URL
+ * - eemalda duplikaadid
+ * @param {string} raw
+ * @returns {string[]}
+ */
+function parseRawLinks(raw) {
+  if (!raw || typeof raw !== "string") return [];
+  const parts = raw
+    .split(/[\s;,]+/g)
+    .map((s) => s.trim())
+    .filter(Boolean);
 
-  const meisterRaw = data.data.find((obj) => obj.ID === params.id);
-  if (!meisterRaw) return { notFound: true };
-
-  const meister = filterObject(meisterRaw, DETAIL_FIELDS);
-  if (meister.elulugu) meister.elulugu = formatText(meister.elulugu);
-
-  const rawLink = meisterRaw.link || null;
-  const idFromLink = rawLink ? extractMuseaalId(rawLink) : null;
-  const link = buildMuisLink(idFromLink);
-
-  let images = [];
-  if (idFromLink) {
+  const valid = [];
+  const seen = new Set();
+  for (const p of parts) {
     try {
-      images = await getObjectImages(idFromLink);
-    } catch (err) {
-      console.error("Piltide laadimine ebaõnnestus:", err);
+      const u = new URL(p);
+      const key = u.href;
+      if (!seen.has(key)) {
+        seen.add(key);
+        valid.push(u.href);
+      }
+    } catch {
+      // ignore invalid
     }
-  } else {
-    console.warn(
-      "MUIS linki ei leitud või ID ei õnnestunud välja võtta:",
-      rawLink
-    );
   }
-
-  return { props: { meister, images, link } };
+  return valid;
 }
 
-// Vormindusfunktsioon – eemaldab reavahetused jms
+/** Kas URL on MUIS-ist */
+function isMuisUrl(url) {
+  try {
+    const u = new URL(url);
+    const h = u.hostname.replace(/^www\./, "");
+    return h === "muis.ee";
+  } catch {
+    return false;
+  }
+}
+
+/** Host kuvamiseks (ilma www.) */
+function hostFrom(u) {
+  try {
+    return new URL(u).hostname.replace(/^www\./, "");
+  } catch {
+    return u;
+  }
+}
+
+/** CTA tekst vastavalt hostile */
+function guessCta(u) {
+  const host = hostFrom(u);
+  const h = host.toLowerCase();
+  if (h.includes("ra.ee")) return "Ava Rahvusarhiivi lehel";
+  if (h.includes("linnaarhiiv")) return "Ava Linnaarhiivi lehel";
+  if (h.includes("digar")) return "Ava DIGAR-is";
+  if (h.includes("ester")) return "Ava ESTER-is";
+  return "Ava välisel lehel";
+}
+
+/** Vormindus – eemaldab liigsed reavahetused jms */
 function formatText(text) {
   if (typeof text !== "string") return text;
   return text
@@ -53,65 +88,141 @@ function formatText(text) {
     .trim();
 }
 
-export default function MeisterDetail({ meister, images, link }) {
+/**
+ * Kui väärtus on string ja sisaldab tükeldajaid, kuvatakse loendina.
+ * Lubame nii koma kui semikooloni.
+ */
+function renderValue(key, value) {
+  if (key === "elulugu") {
+    return <p>{formatText(value)}</p>;
+  }
+  if (typeof value === "string" && /[,;]+/.test(value)) {
+    return (
+      <ul>
+        {value
+          .split(/[,;]+/g)
+          .map((part) => part.trim())
+          .filter(Boolean)
+          .map((part, i) => (
+            <li key={i}>{part}</li>
+          ))}
+      </ul>
+    );
+  }
+  return value;
+}
+
+export async function getServerSideProps({ params }) {
+  const data = await fetchData();
+  const meisterRaw = data?.data?.find?.(
+    (obj) => String(obj.ID) === String(params.id)
+  );
+  if (!meisterRaw) return { notFound: true };
+
+  const meister = filterObject(meisterRaw, DETAIL_FIELDS);
+  if (meister.elulugu) meister.elulugu = formatText(meister.elulugu);
+
+  // Toetame erinevaid välja-nimesid, igaks juhuks
+  const rawLink =
+    meisterRaw.link || meisterRaw.Rawlink || meisterRaw.rawLink || "";
+  const links = parseRawLinks(rawLink);
+
+  const muisLinks = links.filter(isMuisUrl);
+  const externalLinks = links.filter((l) => !isMuisUrl(l));
+
+  let muisImages = [];
+  let muisPublicLink = null;
+
+  if (muisLinks.length > 0) {
+    const firstMuis = muisLinks[0];
+    const muisId = extractMuseaalId(firstMuis);
+    if (muisId) {
+      muisPublicLink = buildMuisLink(muisId);
+      try {
+        muisImages = await getObjectImages(muisId);
+      } catch (err) {
+        console.error("MUIS piltide laadimine ebaõnnestus:", err);
+      }
+    } else {
+      console.warn("MUIS link, millelt ID-d ei saanud:", firstMuis);
+    }
+  }
+
+  return {
+    props: {
+      meister,
+      muisImages,
+      muisPublicLink,
+      externalLinks,
+    },
+  };
+}
+
+export default function MeisterDetail({
+  meister,
+  muisImages,
+  muisPublicLink,
+  externalLinks,
+}) {
   const router = useRouter();
-  // võta detaili-URL-ist query-string ja kasuta seda tagasi avalehele minnes
-  const query = router.asPath.split("?")[1] || "";
-  const backHref = `/${query ? `?${query}` : ""}`;
+
+  // Ehita "tagasi" href säilitades päringuparameetrid
+  const qs = new URLSearchParams(router.query || {}).toString();
+  const backHref = `/${qs ? `?${qs}` : ""}`;
+
+  const fullName = [meister?.Eesnimi, meister?.Perekonnanimi]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <div className="meister-detail">
-      {/* Tagasi nimekirja – hoiab alles filtrid ja lehekülje */}
       <p style={{ marginBottom: 12 }}>
         <Link href={backHref}>← Tagasi nimekirja</Link>
       </p>
 
-      <h1>
-        {meister.Eesnimi} {meister.Perekonnanimi}
-      </h1>
+      <h1>{fullName || "Meister"}</h1>
 
       <table className="meister-table">
         <tbody>
           {Object.entries(meister).map(([key, value]) => (
             <tr key={key}>
               <td className="label">{key}</td>
-              <td>
-                {typeof value === "string" &&
-                value.includes(",") &&
-                key !== "elulugu" ? (
-                  <ul>
-                    {value.split(",").map((part, i) => (
-                      <li key={i}>{part.trim()}</li>
-                    ))}
-                  </ul>
-                ) : key === "elulugu" ? (
-                  <p>{formatText(value)}</p>
-                ) : (
-                  value
-                )}
-              </td>
+              <td>{renderValue(key, value)}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {/* Pildid */}
-      {images?.length > 0 && (
-        <div className="meister-images">
-          {images.map((imgUrl, idx) => (
-            <MuisImage
-              key={idx}
-              src={imgUrl}
-              alt={`${meister.Eesnimi} ${meister.Perekonnanimi} pilt ${
-                idx + 1
-              }`}
-              aspectRatio="4/3"
-              caption={`Allikas: muis.ee (${idx + 1})`}
-              link={link}
-              size="xs" // vali: xs/sm/md/lg
-              center
-            />
-          ))}
+      {(muisImages?.length > 0 || externalLinks?.length > 0) && (
+        <div className="meister-media-grid">
+          {/* MUIS pildid */}
+          {muisImages?.length > 0 &&
+            muisImages.map((imgUrl, idx) => (
+              <MuisImage
+                key={`muis-${idx}`}
+                src={imgUrl}
+                alt={`${fullName || "Meister"} pilt ${idx + 1}`}
+                aspectRatio="4/3"
+                caption={`Allikas: muis.ee (${idx + 1})`}
+                link={muisPublicLink}
+                size="md"
+              />
+            ))}
+
+          {/* Välised lingid */}
+          {externalLinks?.length > 0 &&
+            externalLinks.map((url, i) => (
+              <ExternalLinkCard
+                key={`ext-${i}`}
+                title="Väline allikas"
+                subtitle={hostFrom(url)}
+                caption="Viide: välisallikas"
+                link={url}
+                ctaLabel={guessCta(url)}
+                aspectRatio="4/3"
+                size="md"
+              />
+            ))}
         </div>
       )}
     </div>

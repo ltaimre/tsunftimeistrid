@@ -616,5 +616,16 @@
 }
 .page-ellipsis { padding: 0 .25rem; color: #6b7280; }
 
+/* Kõik meedia-kaardid (MUIS pildid + välised lingid) ühes reas/ruudustikus */
+.meister-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  align-items: start; /* hoiab kaartide ülaääred joondatud */
+}
+
+/* Kui tahad, et MuisImage/ExternalLinkCard ei piiraks end max-widthiga gridi sees,
+   võid lisada nende CSS-i (MuisImage.module.css ja ExternalLinkCard.module.css) ka selle: */
+.wrap--fluid { max-width: none; }
 
 
