@@ -9,16 +9,25 @@ export default function MuisImage({
   aspectRatio = "4/3",
   caption,
   link,
+  // uued mugavuspropid
+  size = "sm", // "xs" | "sm" | "md" | "lg"
+  center = false, // keskjoondus wrapperile
+  quality = 70, // Next/Image'i kvaliteet (fail väiksem)
+  sizes, // kui tahad 'sizes' üle kirjutada
+  className, // lisa klass wrapperile
+  imgClassName, // lisa klass pildile
 }) {
   const [open, setOpen] = useState(false);
   const [failed, setFailed] = useState(false);
 
+  // Aspect ratio -> padding-bottom %
   const ratioPadding = useMemo(() => {
     if (typeof aspectRatio === "number") return `${(1 / aspectRatio) * 100}%`;
     const [w, h] = (aspectRatio || "4/3").split("/").map(Number);
     return `${(h / w) * 100}%`;
   }, [aspectRatio]);
 
+  // Blur placeholder (väike SVG skeleton)
   const blurSvg = `
     <svg xmlns='http://www.w3.org/2000/svg' width='32' height='24'>
       <defs>
@@ -32,26 +41,44 @@ export default function MuisImage({
     </svg>`;
   const blurDataURL = "data:image/svg+xml;utf8," + encodeURIComponent(blurSvg);
 
+  // eelseadistatud max-laiused (peegelduvad teie CSS-i .wrap--* klassidega)
+  const sizeMap = { xs: 220, sm: 280, md: 360, lg: 480 };
+  const widthPx = sizeMap[size] ?? sizeMap.sm;
+
+  // vaikimisi sizes: mobiilis 100vw, muidu valitud max px
+  const computedSizes = sizes || `(max-width: 768px) 100vw, ${widthPx}px`;
+
   return (
-    <div className={styles.wrap}>
+    <div
+      className={[
+        styles.wrap,
+        styles[`wrap--${size}`] || "",
+        center ? styles["wrap--center"] : "",
+        className || "",
+      ]
+        .join(" ")
+        .trim()}
+    >
       <div className={styles.frame} style={{ paddingBottom: ratioPadding }}>
         {!failed ? (
           <Image
             src={src}
             alt={alt}
             fill
-            sizes="(max-width: 768px) 100vw, 800px"
+            sizes={computedSizes}
+            quality={quality}
             placeholder="blur"
             blurDataURL={blurDataURL}
-            className={styles.img}
+            className={[styles.img, imgClassName || ""].join(" ").trim()}
             onError={() => setFailed(true)}
-            unoptimized
+            // NB: 'unoptimized' on eemaldatud, et Next optimeeriks faili väiksemaks
           />
         ) : (
           <img
             src={src}
             alt={alt}
-            className={styles.img}
+            className={[styles.img, imgClassName || ""].join(" ").trim()}
+            style={{ width: "100%", height: "auto" }}
             onError={() => setFailed(true)}
           />
         )}
@@ -66,7 +93,6 @@ export default function MuisImage({
         </button>
       </div>
 
-      {/* Caption ja link */}
       {(caption || link) && (
         <p className={styles.caption}>
           {caption && <span>{caption}</span>}

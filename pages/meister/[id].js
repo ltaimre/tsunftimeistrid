@@ -70,24 +70,6 @@ export default function MeisterDetail({ meister, images, link }) {
         {meister.Eesnimi} {meister.Perekonnanimi}
       </h1>
 
-      {/* Pildid */}
-      {images?.length > 0 && (
-        <div className="meister-images">
-          {images.map((imgUrl, idx) => (
-            <MuisImage
-              key={idx}
-              src={imgUrl}
-              alt={`${meister.Eesnimi} ${meister.Perekonnanimi} pilt ${
-                idx + 1
-              }`}
-              aspectRatio="4/3"
-              caption={`Allikas: muis.ee (${idx + 1})`}
-              link={link}
-            />
-          ))}
-        </div>
-      )}
-
       <table className="meister-table">
         <tbody>
           {Object.entries(meister).map(([key, value]) => (
@@ -112,6 +94,26 @@ export default function MeisterDetail({ meister, images, link }) {
           ))}
         </tbody>
       </table>
+
+      {/* Pildid */}
+      {images?.length > 0 && (
+        <div className="meister-images">
+          {images.map((imgUrl, idx) => (
+            <MuisImage
+              key={idx}
+              src={imgUrl}
+              alt={`${meister.Eesnimi} ${meister.Perekonnanimi} pilt ${
+                idx + 1
+              }`}
+              aspectRatio="4/3"
+              caption={`Allikas: muis.ee (${idx + 1})`}
+              link={link}
+              size="xs" // vali: xs/sm/md/lg
+              center
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

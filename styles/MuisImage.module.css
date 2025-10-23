@@ -42,3 +42,12 @@
   border: 1px solid #e5e7eb;
   cursor: pointer;
 }
+
+/* mõõdu modifikaatorid */
+.wrap--xs { max-width: 220px; }
+.wrap--sm { max-width: 280px; }
+.wrap--md { max-width: 360px; }
+.wrap--lg { max-width: 480px; }
+
+/* valikuline keskjoondus */
+.wrap--center { margin: 0 auto; }
