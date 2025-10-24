@@ -705,4 +705,17 @@
   border-color: #b8c2cf;
 }
 
+/* Peida number-sisendi spinner/nooled (Chrome, Edge, Safari) */
+.year-input.no-spinner::-webkit-outer-spin-button,
+.year-input.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.year-input.no-spinner {
+  -moz-appearance: textfield;
+}
+
+
 

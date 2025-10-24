@@ -1,10 +1,12 @@
-// components/Filters.jsx
 import { useEffect, useMemo, useState } from "react";
 import { FIELDS } from "@/lib/constants";
 
 export default function Filters({ filters, setFilters, options }) {
-  const [openCountries, setOpenCountries] = useState(() => new Set()); // vaikimisi kõik kinni
-  const [openAdvanced, setOpenAdvanced] = useState(false); // ⟵ uus: täpsete filtrite lüliti
+  const [openCountries, setOpenCountries] = useState(() => new Set());
+  const [openAdvanced, setOpenAdvanced] = useState(false);
+
+  const onlyDigitsYear = (v) =>
+    (v ?? "").toString().replace(/[^\d]/g, "").slice(0, 4);
 
   const toggleItem = (field, value) => {
     setFilters((prev) => {
@@ -26,7 +28,6 @@ export default function Filters({ filters, setFilters, options }) {
   };
 
   const selectedByCountry = useMemo(() => {
-    // abiks: mitu linna on konkreetsest riigist valitud
     const map = {};
     for (const { country, cities } of options.jobsByCountry || []) {
       map[country] = cities.filter((c) => filters.job.includes(c)).length;
@@ -34,7 +35,6 @@ export default function Filters({ filters, setFilters, options }) {
     return map;
   }, [options.jobsByCountry, filters.job]);
 
-  // ⟵ uus: mitu “täpsemat” filtrit on aktiivsed (query ei loe)
   const advancedActiveCount = useMemo(() => {
     const yearsFrom = String(filters.years?.from || "").trim();
     const yearsTo = String(filters.years?.to || "").trim();
@@ -47,14 +47,13 @@ export default function Filters({ filters, setFilters, options }) {
     return count;
   }, [filters.years, filters.job, filters.profession, filters.rank]);
 
-  // ⟵ uus: kui on aktiivseid täpsemaid filtreid, ava paneel automaatselt
   useEffect(() => {
     if (advancedActiveCount > 0) setOpenAdvanced(true);
   }, [advancedActiveCount]);
 
   return (
     <div className="filters-column">
-      {/* Otsilahter (alati nähtav) */}
+      {/* Otsilahter */}
       <input
         type="text"
         placeholder="Otsi kõikidest väljadest"
@@ -65,11 +64,11 @@ export default function Filters({ filters, setFilters, options }) {
         className="wide-input"
       />
 
-      {/* Täpsemad filtrid - avanev/sulguv */}
+      {/* Täpsemad filtrid */}
       <div>
         <button
           type="button"
-          className="country-header" // olemasolev neutraalne stiil nupule
+          className="country-header"
           onClick={() => setOpenAdvanced((v) => !v)}
           aria-expanded={openAdvanced}
           aria-controls="advanced-filters"
@@ -95,33 +94,49 @@ export default function Filters({ filters, setFilters, options }) {
               <div className="year-range">
                 <input
                   type="number"
+                  className="year-input no-spinner"
                   placeholder="algus"
+                  inputMode="numeric"
+                  pattern="\d*"
+                  min="0"
+                  step="1"
                   value={filters.years.from}
                   onChange={(e) =>
                     setFilters((prev) => ({
                       ...prev,
-                      years: { ...prev.years, from: e.target.value },
+                      years: {
+                        ...prev.years,
+                        from: onlyDigitsYear(e.target.value),
+                      },
                     }))
                   }
-                  inputMode="numeric"
+                  aria-label="Tegutsemise algusaasta"
                 />
                 <span className="dash">–</span>
                 <input
                   type="number"
+                  className="year-input no-spinner"
                   placeholder="lõpp"
+                  inputMode="numeric"
+                  pattern="\d*"
+                  min="0"
+                  step="1"
                   value={filters.years.to}
                   onChange={(e) =>
                     setFilters((prev) => ({
                       ...prev,
-                      years: { ...prev.years, to: e.target.value },
+                      years: {
+                        ...prev.years,
+                        to: onlyDigitsYear(e.target.value),
+                      },
                     }))
                   }
-                  inputMode="numeric"
+                  aria-label="Tegutsemise lõppaasta"
                 />
               </div>
             </div>
 
-            {/* Töökohad (riigid kokkupakitavad) */}
+            {/* Töökohad */}
             {((options.jobsByCountry?.length ?? 0) > 0 ||
               filters.job.length > 0 ||
               (options.jobs?.length ?? 0) > 0) && (
@@ -183,7 +198,6 @@ export default function Filters({ filters, setFilters, options }) {
                     })}
                   </div>
                 ) : options.jobs?.length > 0 ? (
-                  // Fallback: kui jobsByCountry puudub, näita tasapinnaline nimekiri
                   <div className="checkbox-group">
                     {options.jobs.map((job) => (
                       <label key={job} className="checkbox-item">
