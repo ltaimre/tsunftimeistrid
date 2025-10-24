@@ -1,4 +1,5 @@
 // pages/index.js
+import Head from "next/head";
 import FiltersPanel from "@/components/FiltersPanel";
 import ResultsView from "@/components/ResultsView";
 import useSearchData from "@/hooks/useSearchData";
@@ -18,21 +19,22 @@ export async function getStaticProps() {
 export default function Home({ initialData }) {
   const { data, options, error, isLoading } = useSearchData({ initialData });
   const [filters, setFilters] = usePersistentFilters(getInitialFilters);
-
-  // ⬇️ KUTSU ALATI — anna ohutu vaikimisi väärtus
   const filtered = useFilteredData(data || [], filters || {});
 
   return (
     <div className="home-container">
+      <Head>
+        <title>Tsunftimeistrid</title>
+        <meta name="og:title" content="tsunftimeisrid" />
+      </Head>
+
       <h1 className="page-title">Tsunftiga seotud meistrid</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
-
       <FiltersPanel
         filters={filters}
         setFilters={setFilters}
         options={options || {}}
       />
-
       <ResultsView filtered={filtered} isReady={!isLoading} />
     </div>
   );

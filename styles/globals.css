@@ -628,4 +628,81 @@
    võid lisada nende CSS-i (MuisImage.module.css ja ExternalLinkCard.module.css) ka selle: */
 .wrap--fluid { max-width: none; }
 
+/************************************************************
+ * TAGASI NUpp — avalehe stiiliga kooskõlas
+ ************************************************************/
+ .backbar {
+  margin: 0 0 12px;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+
+  padding: .5rem .8rem;
+  border-radius: 8px;
+
+  background: #eef4ff;             /* pehme sinakas taust */
+  color: #1a237e;                   /* tumedam sinine tekst */
+  border: 1px solid #c9d6ff;        /* kerge ääris */
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+
+  font-size: .95rem;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: .1px;
+  cursor: pointer;
+
+  transition:
+    background-color .15s ease,
+    border-color .15s ease,
+    box-shadow .15s ease,
+    transform .05s ease;
+  min-height: 40px;                 /* tabatavus */
+}
+
+.back-button:hover {
+  background: #e5edff;
+  border-color: #b9c7ff;
+  box-shadow: 0 2px 6px rgba(26, 35, 126, 0.12);
+}
+
+.back-button:active {
+  transform: translateY(1px);
+}
+
+.back-button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* vasak noole-ikoon */
+.back-button .icon {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  line-height: 0;
+  flex: 0 0 auto;
+  color: inherit;
+}
+
+/* (valikuline) kitsal ekraanil täislaiuses */
+@media (max-width: 480px) {
+  .back-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.back-button--ghost {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+  color: #1f2937;
+}
+.back-button--ghost:hover {
+  background: #e2e8f0;
+  border-color: #b8c2cf;
+}
+
 

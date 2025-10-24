@@ -1,4 +1,5 @@
 // pages/meister/[id].js
+import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -172,15 +173,33 @@ export default function MeisterDetail({
   const qs = new URLSearchParams(router.query || {}).toString();
   const backHref = `/${qs ? `?${qs}` : ""}`;
 
-  const fullName = [meister?.Eesnimi, meister?.Perekonnanimi]
+  const fullName = [meister?.eesnimi, meister?.perekonnanimi]
     .filter(Boolean)
     .join(" ");
-
   return (
     <div className="meister-detail">
-      <p style={{ marginBottom: 12 }}>
-        <Link href={backHref}>← Tagasi nimekirja</Link>
-      </p>
+      <Head>
+        <title>
+          {fullName
+            ? `${fullName} — tsunftimeisrid`
+            : "Meister — tsunftimeisrid"}
+        </title>
+        <meta name="og:title" content={fullName || "Meister"} />
+      </Head>
+      <div className="backbar">
+        <Link
+          href={backHref}
+          className="back-button back-button--ghost"
+          aria-label="Tagasi nimekirja"
+        >
+          <span className="icon" aria-hidden>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+              <path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+            </svg>
+          </span>
+          Tagasi nimekirja
+        </Link>
+      </div>
 
       <h1>{fullName || "Meister"}</h1>
 
