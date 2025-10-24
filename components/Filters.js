@@ -1,16 +1,33 @@
 import { useEffect, useMemo, useState } from "react";
-import { FIELDS } from "@/lib/constants";
 
-export default function Filters({ filters, setFilters, options }) {
+export default function Filters({ filters, setFilters, options = {} }) {
   const [openCountries, setOpenCountries] = useState(() => new Set());
   const [openAdvanced, setOpenAdvanced] = useState(false);
+
+  // --- turvalised lühendid (vältimaks undefined.length jne) ---
+  const safeJob = Array.isArray(filters?.job) ? filters.job : [];
+  const safeProfession = Array.isArray(filters?.profession)
+    ? filters.profession
+    : [];
+  const safeRank = Array.isArray(filters?.rank) ? filters.rank : [];
+  const safeYears = filters?.years ?? { from: "", to: "" };
+
+  const jobsByCountry = Array.isArray(options?.jobsByCountry)
+    ? options.jobsByCountry
+    : [];
+  const jobsFlat = Array.isArray(options?.jobs) ? options.jobs : [];
+  const professionsOpt = Array.isArray(options?.professions)
+    ? options.professions
+    : [];
+  const ranksOpt = Array.isArray(options?.ranks) ? options.ranks : [];
 
   const onlyDigitsYear = (v) =>
     (v ?? "").toString().replace(/[^\d]/g, "").slice(0, 4);
 
   const toggleItem = (field, value) => {
     setFilters((prev) => {
-      const current = prev[field];
+      const currentRaw = prev?.[field];
+      const current = Array.isArray(currentRaw) ? currentRaw : [];
       const updated = current.includes(value)
         ? current.filter((v) => v !== value)
         : [...current, value];
@@ -29,23 +46,23 @@ export default function Filters({ filters, setFilters, options }) {
 
   const selectedByCountry = useMemo(() => {
     const map = {};
-    for (const { country, cities } of options.jobsByCountry || []) {
-      map[country] = cities.filter((c) => filters.job.includes(c)).length;
+    for (const { country, cities } of jobsByCountry) {
+      map[country] = cities.filter((c) => safeJob.includes(c)).length;
     }
     return map;
-  }, [options.jobsByCountry, filters.job]);
+  }, [jobsByCountry, safeJob]);
 
   const advancedActiveCount = useMemo(() => {
-    const yearsFrom = String(filters.years?.from || "").trim();
-    const yearsTo = String(filters.years?.to || "").trim();
+    const yearsFrom = String(safeYears.from || "").trim();
+    const yearsTo = String(safeYears.to || "").trim();
     let count = 0;
     if (yearsFrom) count++;
     if (yearsTo) count++;
-    count += (filters.job?.length || 0) > 0 ? 1 : 0;
-    count += (filters.profession?.length || 0) > 0 ? 1 : 0;
-    count += (filters.rank?.length || 0) > 0 ? 1 : 0;
+    count += safeJob.length > 0 ? 1 : 0;
+    count += safeProfession.length > 0 ? 1 : 0;
+    count += safeRank.length > 0 ? 1 : 0;
     return count;
-  }, [filters.years, filters.job, filters.profession, filters.rank]);
+  }, [safeYears, safeJob, safeProfession, safeRank]);
 
   useEffect(() => {
     if (advancedActiveCount > 0) setOpenAdvanced(true);
@@ -57,7 +74,7 @@ export default function Filters({ filters, setFilters, options }) {
       <input
         type="text"
         placeholder="Otsi kõikidest väljadest"
-        value={filters.query}
+        value={filters?.query ?? ""}
         onChange={(e) =>
           setFilters((prev) => ({ ...prev, query: e.target.value }))
         }
@@ -100,12 +117,12 @@ export default function Filters({ filters, setFilters, options }) {
                   pattern="\d*"
                   min="0"
                   step="1"
-                  value={filters.years.from}
+                  value={safeYears.from ?? ""}
                   onChange={(e) =>
                     setFilters((prev) => ({
                       ...prev,
                       years: {
-                        ...prev.years,
+                        ...(prev?.years ?? {}),
                         from: onlyDigitsYear(e.target.value),
                       },
                     }))
@@ -121,12 +138,12 @@ export default function Filters({ filters, setFilters, options }) {
                   pattern="\d*"
                   min="0"
                   step="1"
-                  value={filters.years.to}
+                  value={safeYears.to ?? ""}
                   onChange={(e) =>
                     setFilters((prev) => ({
                       ...prev,
                       years: {
-                        ...prev.years,
+                        ...(prev?.years ?? {}),
                         to: onlyDigitsYear(e.target.value),
                       },
                     }))
@@ -137,15 +154,15 @@ export default function Filters({ filters, setFilters, options }) {
             </div>
 
             {/* Töökohad */}
-            {((options.jobsByCountry?.length ?? 0) > 0 ||
-              filters.job.length > 0 ||
-              (options.jobs?.length ?? 0) > 0) && (
+            {((jobsByCountry.length ?? 0) > 0 ||
+              safeJob.length > 0 ||
+              (jobsFlat.length ?? 0) > 0) && (
               <div>
                 <strong>Töökohad:</strong>
 
-                {options.jobsByCountry?.length > 0 ? (
+                {jobsByCountry.length > 0 ? (
                   <div className="country-accordion">
-                    {options.jobsByCountry.map(({ country, cities }) => {
+                    {jobsByCountry.map(({ country, cities }) => {
                       const isOpen = openCountries.has(country);
                       const selectedCount = selectedByCountry[country] || 0;
                       return (
@@ -185,7 +202,7 @@ export default function Filters({ filters, setFilters, options }) {
                                 >
                                   <input
                                     type="checkbox"
-                                    checked={filters.job.includes(city)}
+                                    checked={safeJob.includes(city)}
                                     onChange={() => toggleItem("job", city)}
                                   />
                                   {city}
@@ -197,13 +214,13 @@ export default function Filters({ filters, setFilters, options }) {
                       );
                     })}
                   </div>
-                ) : options.jobs?.length > 0 ? (
+                ) : jobsFlat.length > 0 ? (
                   <div className="checkbox-group">
-                    {options.jobs.map((job) => (
+                    {jobsFlat.map((job) => (
                       <label key={job} className="checkbox-item">
                         <input
                           type="checkbox"
-                          checked={filters.job.includes(job)}
+                          checked={safeJob.includes(job)}
                           onChange={() => toggleItem("job", job)}
                         />
                         {job}
@@ -217,16 +234,15 @@ export default function Filters({ filters, setFilters, options }) {
             )}
 
             {/* Ametid */}
-            {(options.professions.length > 0 ||
-              filters.profession.length > 0) && (
+            {(professionsOpt.length > 0 || safeProfession.length > 0) && (
               <div>
                 <strong>Ametid:</strong>
                 <div className="checkbox-group">
-                  {options.professions.map((p) => (
+                  {professionsOpt.map((p) => (
                     <label key={p} className="checkbox-item">
                       <input
                         type="checkbox"
-                        checked={filters.profession.includes(p)}
+                        checked={safeProfession.includes(p)}
                         onChange={() => toggleItem("profession", p)}
                       />
                       {p}
@@ -237,15 +253,15 @@ export default function Filters({ filters, setFilters, options }) {
             )}
 
             {/* Ametiastmed */}
-            {(options.ranks?.length > 0 || filters.rank.length > 0) && (
+            {(ranksOpt.length > 0 || safeRank.length > 0) && (
               <div>
                 <strong>Ametiastmed:</strong>
                 <div className="checkbox-group">
-                  {options.ranks.map((r) => (
+                  {ranksOpt.map((r) => (
                     <label key={r} className="checkbox-item">
                       <input
                         type="checkbox"
-                        checked={filters.rank.includes(r)}
+                        checked={safeRank.includes(r)}
                         onChange={() => toggleItem("rank", r)}
                       />
                       {r}

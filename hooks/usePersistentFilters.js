@@ -1,7 +1,7 @@
 // hooks/usePersistentFilters.js
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/router"; // pages-router
+import { useRouter } from "next/router";
 import useDebouncedEffect from "@/hooks/useDebouncedEffect";
 import { encodeFiltersToQuery, decodeQueryToFilters } from "@/lib/filtersQuery";
 
@@ -10,83 +10,88 @@ const STORAGE_KEY = "filters:index";
 export default function usePersistentFilters(getInitialFilters) {
   const router = useRouter();
 
-  const [filters, setFilters] = useState(() => {
-    // 1) proovi URL-ist
-    const fromUrl = decodeQueryToFilters(
-      (typeof window !== "undefined" ? window.location.search.slice(1) : "") ||
-        "",
-      getInitialFilters
-    );
+  // 1) Alusta alati deterministlike vaikimisi filtritega.
+  //    ÄRA loe siin URL-i ega sessionStorage’it (vältimaks hydration-mismatch’i).
+  const [filters, setFilters] = useState(() => getInitialFilters());
+  const [hydrated, setHydrated] = useState(false); // pärast esmast sünk’i URL/SS-ga
 
-    // 2) kui URL tühi, proovi sessionStorage
-    if (typeof window !== "undefined" && !hasAnyFilter(fromUrl)) {
+  const syncingFromUrlRef = useRef(true); // esmane sünk URL/SS -> state
+
+  // 2) Esmane sünk pärast mount’i (ja kui router on valmis):
+  //    loe enne URL, kui tühi – proovi sessionStorage.
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    const search =
+      typeof window !== "undefined" ? window.location.search.slice(1) : "";
+    let next = decodeQueryToFilters(search || "", getInitialFilters);
+
+    if (!hasAnyFilter(next) && typeof window !== "undefined") {
       try {
         const raw = window.sessionStorage.getItem(STORAGE_KEY);
-        if (raw) return JSON.parse(raw);
-      } catch {}
+        if (raw) next = JSON.parse(raw);
+      } catch {
+        // ignore
+      }
     }
 
-    return fromUrl;
-  });
+    setFilters(next);
+    syncingFromUrlRef.current = false; // esmane sünk tehtud
+    setHydrated(true);
+  }, [router.isReady, getInitialFilters]);
 
-  const firstRun = useRef(true);
+  // 3) Kirjuta sessionStorage’isse, kui filtrid muutuvad (pärast esmast sünk’i)
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(filters));
+    } catch {
+      // ignore
+    }
+  }, [filters, hydrated]);
 
-  // ————————————————————————————————————————————————
-  // Kirjuta URL + sessionStorage IGAL FILTRITE MUUTUSEL,
-  // aga: ainult avalehel ("/") JA debounced (250ms)
-  // ————————————————————————————————————————————————
+  // 4) Kirjuta URL-i (debounced), AINULT avalehel ja AINULT pärast esmast sünk’i
   useDebouncedEffect(
     () => {
+      if (!hydrated) return;
       if (!router.isReady) return;
-      if (router.pathname !== "/") return; // ⟵ ära puutu URL-i teistel lehtedel
+      if (router.pathname !== "/") return;
+      if (syncingFromUrlRef.current) return; // kui just loeme URL-ist, ära kirjuta tagasi
 
       const qs = encodeFiltersToQuery(filters);
       const nextUrl = qs ? `/?${qs}` : `/`;
 
-      // ära tee asjatut replace'i, kui URL juba sama
-      if (router.asPath === nextUrl) {
-        try {
-          window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(filters));
-        } catch {}
-        return;
-      }
-
+      if (router.asPath === nextUrl) return; // juba sama
       router.replace(nextUrl, undefined, { shallow: true, scroll: false });
-
-      try {
-        window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(filters));
-      } catch {}
     },
-    // deps:
-    [filters, router.isReady, router.pathname, router.asPath],
+    [filters, hydrated, router.isReady, router.pathname, router.asPath],
     250
   );
 
-  // ————————————————————————————————————————————————
-  // Kui kasutaja muudab query't (või saabub linkiga),
-  // sünkrooni see state'i
-  // ————————————————————————————————————————————————
+  // 5) Kui kasutaja muudab query’t (back/forward või käsitsi),
+  //    sünkrooni see state’i (pärast esmast sünk’i).
   useEffect(() => {
     if (!router.isReady) return;
+    if (!hydrated) return;
 
-    // vältida esmast topelt-sünkroonimist
-    if (firstRun.current) {
-      firstRun.current = false;
-      return;
-    }
+    const search =
+      typeof window !== "undefined" ? window.location.search.slice(1) : "";
+    const next = decodeQueryToFilters(search || "", getInitialFilters);
 
-    const next = decodeQueryToFilters(
-      (typeof window !== "undefined" ? window.location.search.slice(1) : "") ||
-        "",
-      getInitialFilters
-    );
-
+    // tähista, et hetkel sünkroomeen URL-ist -> ei tohiks samal ajal URL-i kirjutada
+    syncingFromUrlRef.current = true;
     setFilters((prev) =>
       JSON.stringify(prev) === JSON.stringify(next) ? prev : next
     );
-  }, [router.isReady, router.query]);
+    // väike viide, et lasta render ära teha ja siis lubada uuesti kirjutamist
+    const t = setTimeout(() => {
+      syncingFromUrlRef.current = false;
+    }, 0);
 
-  return [filters, setFilters];
+    return () => clearTimeout(t);
+  }, [router.isReady, router.query, hydrated, getInitialFilters]);
+
+  return [filters, setFilters, { hydrated }];
 }
 
 function hasAnyFilter(f) {

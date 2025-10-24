@@ -1,5 +1,6 @@
+// components/ResultsView.jsx
 "use client";
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import ResultsTable from "./ResultsTable";
 import Pagination from "./Pagination";
@@ -9,21 +10,23 @@ import { RESULTS_PER_PAGE as DEFAULT_PAGE_SIZE } from "@/lib/constants";
 
 export default function ResultsView({
   filtered,
-  isReady = false, // ⬅️ uus prop
+  isReady = false, // andmete valmisolek (nt !isLoading)
   pageSize = DEFAULT_PAGE_SIZE ?? 20,
   queryKeyPage = "page",
   queryKeyPageSize = "pageSize",
 }) {
   const router = useRouter();
-  const { asPath, pathname } = router;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
-  // ohutu alusandmestik, et vältida hookide tingimuslikku käivitust
-  const items = Array.isArray(filtered) ? filtered : [];
+  const routerReady = router.isReady && mounted; // ⬅️ mõlemad peavad true olema
+  const ready = isReady && routerReady; // ⬅️ koond-valmisolek
 
-  // 1) loe query
-  const search = asPath.split("?")[1] || "";
+  // ära parsi queryt enne kui routerReady
+  const search = routerReady ? router.asPath.split("?")[1] || "" : "";
   const params = useMemo(() => new URLSearchParams(search), [search]);
 
+  const items = Array.isArray(filtered) ? filtered : [];
   const urlPage = Number(params.get(queryKeyPage) || "1");
   const urlPageSize = Number(params.get(queryKeyPageSize) || String(pageSize));
   const effectivePageSize =
@@ -36,7 +39,6 @@ export default function ResultsView({
       ? Math.min(urlPage, totalPages)
       : 1;
 
-  // 2) slice vaate jaoks
   const { pageItems, from, to } = useMemo(() => {
     const start = (current - 1) * effectivePageSize;
     const end = Math.min(start + effectivePageSize, total);
@@ -47,44 +49,39 @@ export default function ResultsView({
     };
   }, [items, current, effectivePageSize, total]);
 
-  // util: push/replace params
   const replaceParams = (upd) => {
-    if (pathname !== "/") return;
+    if (!routerReady || router.pathname !== "/") return;
     const next = new URLSearchParams(params.toString());
     Object.entries(upd).forEach(([k, v]) => {
       if (v === undefined || v === null || v === "") next.delete(k);
       else next.set(k, String(v));
     });
     const qs = next.toString();
-    router.replace(`${pathname}${qs ? `?${qs}` : ""}`, undefined, {
+    router.replace(`${router.pathname}${qs ? `?${qs}` : ""}`, undefined, {
       shallow: true,
       scroll: false,
     });
   };
 
   const pushParams = (upd) => {
-    if (pathname !== "/") return;
+    if (!routerReady || router.pathname !== "/") return;
     const next = new URLSearchParams(params.toString());
     Object.entries(upd).forEach(([k, v]) => {
       if (v === undefined || v === null || v === "") next.delete(k);
       else next.set(k, String(v));
     });
     const qs = next.toString();
-    router.push(`${pathname}${qs ? `?${qs}` : ""}`, undefined, {
+    router.push(`${router.pathname}${qs ? `?${qs}` : ""}`, undefined, {
       shallow: true,
       scroll: false,
     });
   };
 
-  // 3) kui filtrid/andmed muutuvad ja oled avalehel, mine lehele 1 (debounce)
   useDebouncedEffect(
     () => {
-      if (!isReady) return; // ⬅️ ära torgi URL-i enne kui valmis
-      if (pathname !== "/") return;
-
+      if (!routerReady || router.pathname !== "/") return;
       const currentPageStr = params.get(queryKeyPage) || "1";
       if (currentPageStr === "1") return;
-
       replaceParams({
         [queryKeyPage]: 1,
         [queryKeyPageSize]: effectivePageSize,
@@ -92,8 +89,8 @@ export default function ResultsView({
     },
     [
       items,
-      isReady,
-      pathname,
+      routerReady,
+      router.pathname,
       effectivePageSize,
       queryKeyPage,
       queryKeyPageSize,
@@ -101,8 +98,8 @@ export default function ResultsView({
     250
   );
 
-  // 4) lehe vahetus (ajalooga)
   const setPage = (next) => {
+    if (!routerReady) return;
     const clamped = Math.max(1, Math.min(next, totalPages));
     pushParams({
       [queryKeyPage]: clamped,
@@ -113,10 +110,10 @@ export default function ResultsView({
   return (
     <section className="results-view">
       <div className="results-toolbar">
-        <SearchSummary total={total} from={from} to={to} isReady={isReady} />
+        <SearchSummary total={total} from={from} to={to} isReady={ready} />
       </div>
 
-      {!isReady ? (
+      {!ready ? (
         <div className="results-skeleton">Laadin andmeid…</div>
       ) : (
         <>
