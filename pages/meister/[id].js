@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-import { fetchData } from "../../utils/fetchData";
+import { fetchRowById } from "@/utils/fetchRowById";
 import { extractMuseaalId } from "@/utils/parseMuisUrl";
 import { buildMuisLink } from "@/utils/buildMuisLink";
 import { getObjectImages } from "@/utils/fetchImagesUrl";
@@ -114,10 +114,12 @@ function renderValue(key, value) {
 }
 
 export async function getServerSideProps({ params }) {
-  const data = await fetchData();
-  const meisterRaw = data?.data?.find?.(
-    (obj) => String(obj.ID) === String(params.id)
-  );
+  const meisterRaw = await fetchRowById(params.id, {
+    sheetId: process.env.SHEET_ID,
+    gid: process.env.SHEET_GID, // kui vaja konkreetset lehte; muidu jäta ära
+    idCol: "A", // muuda vastavalt oma tabeli ID veeru tähega
+    idIsNumber: true, // pane true, kui ID veerus on arvud
+  });
   if (!meisterRaw) return { notFound: true };
 
   const meister = filterObject(meisterRaw, DETAIL_FIELDS);
