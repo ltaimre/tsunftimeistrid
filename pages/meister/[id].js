@@ -7,6 +7,7 @@ import { extractMuseaalId } from "@/utils/parseMuisUrl";
 import { buildMuisLink } from "@/utils/buildMuisLink";
 import { getObjectImages } from "@/utils/fetchImagesUrl";
 import { filterObject } from "@/lib/filterObject";
+import { labelFor } from "@/lib/labels";
 import { DETAIL_FIELDS } from "@/lib/constants";
 
 import MuisImage from "@/components/MuisImage";
@@ -185,7 +186,7 @@ export default function MeisterDetail({
         <tbody>
           {Object.entries(meister).map(([key, value]) => (
             <tr key={key}>
-              <td className="label">{key}</td>
+              <td className="label">{labelFor(key)}</td>
               <td>{renderValue(key, value)}</td>
             </tr>
           ))}
