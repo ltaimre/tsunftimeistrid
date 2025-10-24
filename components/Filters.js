@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+"use client";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function Filters({ filters, setFilters, options = {} }) {
-  const [openCountries, setOpenCountries] = useState(() => new Set());
-  const [openAdvanced, setOpenAdvanced] = useState(false);
+  // ——— paneelid ———
+  const [openCountries, setOpenCountries] = useState(() => new Set()); // riikide akordionid
+  const [openAdvanced, setOpenAdvanced] = useState(false); // ⟵ vaikimisi KINNI
 
-  // --- turvalised lühendid (vältimaks undefined.length jne) ---
+  // ——— turvalised lühendid (vältimaks undefined.length jne) ———
   const safeJob = Array.isArray(filters?.job) ? filters.job : [];
   const safeProfession = Array.isArray(filters?.profession)
     ? filters.profession
@@ -21,6 +23,7 @@ export default function Filters({ filters, setFilters, options = {} }) {
     : [];
   const ranksOpt = Array.isArray(options?.ranks) ? options.ranks : [];
 
+  // ——— abid ———
   const onlyDigitsYear = (v) =>
     (v ?? "").toString().replace(/[^\d]/g, "").slice(0, 4);
 
@@ -58,14 +61,26 @@ export default function Filters({ filters, setFilters, options = {} }) {
     let count = 0;
     if (yearsFrom) count++;
     if (yearsTo) count++;
-    count += safeJob.length > 0 ? 1 : 0;
-    count += safeProfession.length > 0 ? 1 : 0;
-    count += safeRank.length > 0 ? 1 : 0;
+    if (safeJob.length) count++;
+    if (safeProfession.length) count++;
+    if (safeRank.length) count++;
     return count;
   }, [safeYears, safeJob, safeProfession, safeRank]);
 
+  // ——— Auto-open ONCE kui kasutaja tuli URL-i filtritega ———
+  const didAutoOpenRef = useRef(false);
   useEffect(() => {
-    if (advancedActiveCount > 0) setOpenAdvanced(true);
+    if (didAutoOpenRef.current) return;
+    const hasUrlParams =
+      typeof window !== "undefined" && window.location.search.length > 1;
+    if (!hasUrlParams) {
+      didAutoOpenRef.current = true; // ei tee midagi, jääb vaikimisi kinni
+      return;
+    }
+    if (advancedActiveCount > 0) {
+      setOpenAdvanced(true); // ava üks kord, kui URL-ist tulnud filtrid on peal
+      didAutoOpenRef.current = true; // ära enam automaatselt muuda
+    }
   }, [advancedActiveCount]);
 
   return (
@@ -106,6 +121,7 @@ export default function Filters({ filters, setFilters, options = {} }) {
 
         {openAdvanced && (
           <div id="advanced-filters">
+            {/* Aastavahemik */}
             <div>
               <strong>Tegutsemisvahemik:</strong>
               <div className="year-range">
