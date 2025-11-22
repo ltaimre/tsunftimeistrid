@@ -62,13 +62,14 @@ export default function Filters({ filters, setFilters, options = {} }) {
     const yearsFrom = String(safeYears.from || "").trim();
     const yearsTo = String(safeYears.to || "").trim();
     let count = 0;
+    if (filters?.name) count++;
     if (yearsFrom) count++;
     if (yearsTo) count++;
     if (safeJob.length) count++;
     if (safeProfession.length) count++;
     if (safeRank.length) count++;
     return count;
-  }, [safeYears, safeJob, safeProfession, safeRank]);
+  }, [filters?.name, safeYears, safeJob, safeProfession, safeRank]);
 
   // —— Auto-open kui URL sisaldab openFilters=true ——
   const didAutoOpenRef = useRef(false);
@@ -83,13 +84,11 @@ export default function Filters({ filters, setFilters, options = {} }) {
       setOpenAdvanced(true);
       didAutoOpenRef.current = true;
 
-      // Eemalda openFilters URL-ist pärast avamist
       params.delete("openFilters");
       const newSearch = params.toString();
       const newUrl = `${router.pathname}${newSearch ? `?${newSearch}` : ""}`;
       router.replace(newUrl, undefined, { shallow: true });
     } else if (advancedActiveCount > 0) {
-      // Kui URL-ist tulnud filtrid on peal, ava ka
       setOpenAdvanced(true);
       didAutoOpenRef.current = true;
     } else {
@@ -135,51 +134,67 @@ export default function Filters({ filters, setFilters, options = {} }) {
 
         {openAdvanced && (
           <div id="advanced-filters">
-            {/* Aastavahemik */}
-            <div>
-              <strong>Tegutsemisvahemik:</strong>
-              <div className="year-range">
+            {/* Nimi ja ajavahemik ühes reas */}
+            <div className="filters-row">
+              <div className="filter-group">
+                <strong>Nimi:</strong>
                 <input
-                  type="number"
-                  className="year-input no-spinner"
-                  placeholder="algus"
-                  inputMode="numeric"
-                  pattern="\d*"
-                  min="0"
-                  step="1"
-                  value={safeYears.from ?? ""}
+                  type="text"
+                  placeholder="Eesnimi või perekonnanimi"
+                  value={filters?.name ?? ""}
                   onChange={(e) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      years: {
-                        ...(prev?.years ?? {}),
-                        from: onlyDigitsYear(e.target.value),
-                      },
-                    }))
+                    setFilters((prev) => ({ ...prev, name: e.target.value }))
                   }
-                  aria-label="Tegutsemise algusaasta"
+                  className="name-input"
+                  aria-label="Otsi nime järgi"
                 />
-                <span className="dash">—</span>
-                <input
-                  type="number"
-                  className="year-input no-spinner"
-                  placeholder="lõpp"
-                  inputMode="numeric"
-                  pattern="\d*"
-                  min="0"
-                  step="1"
-                  value={safeYears.to ?? ""}
-                  onChange={(e) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      years: {
-                        ...(prev?.years ?? {}),
-                        to: onlyDigitsYear(e.target.value),
-                      },
-                    }))
-                  }
-                  aria-label="Tegutsemise lõppaasta"
-                />
+              </div>
+
+              <div className="filter-group">
+                <strong>Tegutsemisvahemik:</strong>
+                <div className="year-range">
+                  <input
+                    type="number"
+                    className="year-input no-spinner"
+                    placeholder="algus"
+                    inputMode="numeric"
+                    pattern="\d*"
+                    min="0"
+                    step="1"
+                    value={safeYears.from ?? ""}
+                    onChange={(e) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        years: {
+                          ...(prev?.years ?? {}),
+                          from: onlyDigitsYear(e.target.value),
+                        },
+                      }))
+                    }
+                    aria-label="Tegutsemise algusaasta"
+                  />
+                  <span className="dash">—</span>
+                  <input
+                    type="number"
+                    className="year-input no-spinner"
+                    placeholder="lõpp"
+                    inputMode="numeric"
+                    pattern="\d*"
+                    min="0"
+                    step="1"
+                    value={safeYears.to ?? ""}
+                    onChange={(e) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        years: {
+                          ...(prev?.years ?? {}),
+                          to: onlyDigitsYear(e.target.value),
+                        },
+                      }))
+                    }
+                    aria-label="Tegutsemise lõppaasta"
+                  />
+                </div>
               </div>
             </div>
 

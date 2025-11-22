@@ -2,17 +2,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { FIELDS } from "@/lib/constants";
 
-/**
- * Kasutus:
- * const { data, options, error, isLoading } = useSearchData({ initialData });
- *
- * - Kui initialData on olemas (SSR/ISR), ei fetchita /api/data.
- * - isLoading on true kuni data on olemas ja options arvutatud.
- */
 export default function useSearchData({ initialData } = {}) {
-  // NB: hoiame 'data' algselt nullina kui initialData puudub,
-  // et tarbijad ei kuvaks "0" enne, kui päris andmed on käes.
-  const [data, setData] = useState(() => initialData || null);
+  const [data, setData] = useState(initialData || null);
   const [options, setOptions] = useState(null);
   const [error, setError] = useState(null);
 
@@ -24,7 +15,6 @@ export default function useSearchData({ initialData } = {}) {
       .map((x) => x.trim())
       .filter(Boolean);
 
-  // Ehita options lokaalselt
   const buildOptions = (rows, cityCountryMap) => {
     const allJobs = new Set();
     const allProfessions = new Set();
@@ -40,10 +30,14 @@ export default function useSearchData({ initialData } = {}) {
       splitMulti(item[FIELDS.RANK]).forEach((r) => r && allRanks.add(r));
     });
 
-    // Grupeeri riikide kaupa; kui map puudub, kasutame "Määramata"
-    const byCountry = new Map(); // country -> Set(cities)
+    // Grupeeri riikide kaupa
+    const byCountry = new Map();
     for (const city of allJobs) {
-      const country = (cityCountryMap && cityCountryMap[city]) || "Määramata";
+      const country = cityCountryMap && cityCountryMap[city];
+
+      // ⬅️ UUUS: Jäta vahele kui riik puudub (ei lisa "Määramata")
+      if (!country) continue;
+
       if (!byCountry.has(country)) byCountry.set(country, new Set());
       byCountry.get(country).add(city);
     }
@@ -74,17 +68,13 @@ export default function useSearchData({ initialData } = {}) {
         const { map } = await r.json();
         return map || {};
       } catch (e) {
-        console.warn(
-          "Valikute (city->country) laadimine ebaõnnestus, kasutan 'Määramata'.",
-          e
-        );
-        return {}; // jätkame ilma kaardita
+        console.warn("Valikute (city->country) laadimine ebaõnnestus.", e);
+        return {};
       }
     }
 
     async function loadAll() {
       try {
-        // 1) Andmed: kui initialData puudub, lae /api/data
         let rows = data;
         if (!rows) {
           const r1 = await fetch("/api/data", { signal: controller.signal });
@@ -95,8 +85,6 @@ export default function useSearchData({ initialData } = {}) {
           setData(rows);
         }
 
-        // 2) Options: ehita; vajadusel lae cityCountryMap
-        // Kui options juba olemas (nt upstreamist), jäta vahele.
         if (!options) {
           const cityCountryMap = await ensureCityCountryMap();
           if (cancelled) return;
@@ -117,10 +105,8 @@ export default function useSearchData({ initialData } = {}) {
       cancelled = true;
       controller.abort();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [etCollator]); // etCollator on stabiilne, muud sõltuvused hallatakse sees
+  }, [etCollator]);
 
-  // isLoading: kuni data ja options on valmis
   const isLoading = !data || !options;
 
   return { data, options, error, isLoading };

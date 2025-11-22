@@ -29,8 +29,7 @@ export const homeContent = {
   // Annotatsioon tekst
   annotation: {
     title: "ANNOTATSIOON",
-    text: `Eesti käsitööliste andmebaas koondab isikuandmeid 16.–20. sajandi alguse käsitööliste kohta. Fookuses on kohaliku ainelise kultuuripärandiga seotud meisterkond, tsunftid ja käsitööalad. Materjal on pidevalt täienev; esimeses järgus on rõhuasetus Tallinnal ja maalijatel (EKA teadusprojekt). Eesmärk … Andmed põhinevad arhiiviallikatel, tsunftide arhiividel ja kodanikeloenditel ning neid täiendavad varasemate uurijate tööd, eeskätt Wilhelm Neumanni, Rasmus Kangropooli, Krista Kodrese ja Pia Ehasalu andmed. Lisandumas on teiste linnade ning teiste käsitööalade meistrid, sellid ja õpipoisid.
-Triin Kröönström, Hannes Vinnal
+    text: `Eesti käsitööliste andmebaas koondab isikuandmeid 16.–20. sajandi alguse käsitööliste kohta. Fookuses on kohaliku ainelise kultuuripärandiga seotud meisterkond, tsunftid ja käsitööalad. Materjal on pidevalt täienev; esimeses järgus on rõhuasetus Tallinnal ja maalijatel (EKA teadusprojekt). Andmed põhinevad arhiiviallikatel, tsunftide arhiividel ja kodanikeloenditel ning neid täiendavad varasemate uurijate tööd, eeskätt Wilhelm Neumanni, Rasmus Kangropooli, Krista Kodrese ja Pia Ehasalu andmed. Lisandumas on teiste linnade ning teiste käsitööalade meistrid, sellid ja õpipoisid.
 `,
   },
 

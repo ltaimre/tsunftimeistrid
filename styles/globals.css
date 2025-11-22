@@ -716,6 +716,49 @@
 .year-input.no-spinner {
   -moz-appearance: textfield;
 }
+/* Filtrite rida - nimi ja ajavahemik kõrvuti */
+.filters-row {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group strong {
+  font-size: 14px;
+}
+
+.name-input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  min-width: 200px;
+}
+
+.name-input:focus {
+  outline: none;
+  border-color: #666;
+}
+
+/* Mobiilil üksteise all */
+@media (max-width: 600px) {
+  .filters-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .name-input {
+    width: 100%;
+  }
+}
 
 
 

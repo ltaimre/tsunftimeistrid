@@ -10,11 +10,15 @@ const STORAGE_KEY = "filters:search";
 export default function usePersistentFilters(getInitialFilters) {
   const router = useRouter();
 
+  // ⬅️ UUUS: Salvesta getInitialFilters ref'i, et vältida lõpmatut tsüklit
+  const getInitialFiltersRef = useRef(getInitialFilters);
+  getInitialFiltersRef.current = getInitialFilters;
+
   // 1) Alusta alati deterministlike vaikimisi filtritega.
   const [filters, setFilters] = useState(() => getInitialFilters());
   const [hydrated, setHydrated] = useState(false);
 
-  const syncingFromUrlRef = useRef(true); // esmane sünk URL/SS -> state
+  const syncingFromUrlRef = useRef(true);
 
   // 2) Esmane sünk pärast mounti (ja kui router on valmis):
   useEffect(() => {
@@ -22,7 +26,7 @@ export default function usePersistentFilters(getInitialFilters) {
 
     const search =
       typeof window !== "undefined" ? window.location.search.slice(1) : "";
-    let next = decodeQueryToFilters(search || "", getInitialFilters);
+    let next = decodeQueryToFilters(search || "", getInitialFiltersRef.current);
 
     if (!hasAnyFilter(next) && typeof window !== "undefined") {
       try {
@@ -36,7 +40,7 @@ export default function usePersistentFilters(getInitialFilters) {
     setFilters(next);
     syncingFromUrlRef.current = false;
     setHydrated(true);
-  }, [router.isReady, getInitialFilters]);
+  }, [router.isReady]);
 
   // 3) Kirjuta sessionStorageisse, kui filtrid muutuvad
   useEffect(() => {
@@ -73,7 +77,10 @@ export default function usePersistentFilters(getInitialFilters) {
 
     const search =
       typeof window !== "undefined" ? window.location.search.slice(1) : "";
-    const next = decodeQueryToFilters(search || "", getInitialFilters);
+    const next = decodeQueryToFilters(
+      search || "",
+      getInitialFiltersRef.current
+    );
 
     syncingFromUrlRef.current = true;
     setFilters((prev) =>
@@ -85,7 +92,7 @@ export default function usePersistentFilters(getInitialFilters) {
     }, 0);
 
     return () => clearTimeout(t);
-  }, [router.isReady, router.query, hydrated, getInitialFilters]);
+  }, [router.isReady, router.query, hydrated]);
 
   return [filters, setFilters, { hydrated }];
 }

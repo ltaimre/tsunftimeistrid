@@ -24,7 +24,7 @@ export default function SearchPage({ initialData }) {
   return (
     <div className="home-container">
       <Head>
-        <title>Tsunftimeistrid - Otsing</title>
+        <title>Otsing - TsunftimeistridOtsing</title>
         <meta name="og:title" content="Tsunftimeistrid otsing" />
       </Head>
 

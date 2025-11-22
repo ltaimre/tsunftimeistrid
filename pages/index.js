@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
+import Head from "next/head";
 import Image from "next/image";
 import { homeContent } from "../config/homeContent";
 import styles from "../styles/Home.module.css";
@@ -11,23 +12,25 @@ export default function Home() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (!searchName.trim()) return;
-
-    // Suuna search lehele koos query parameetriga
-    router.push(`/search?query=${encodeURIComponent(searchName.trim())}`);
+    router.push(`/search?q=${encodeURIComponent(searchName.trim())}`);
   };
 
   const handleDetailSearch = () => {
-    // Suuna search lehele ja ava automaatselt täpsemad filtrid
     const params = new URLSearchParams();
     if (searchName.trim()) {
-      params.set("query", searchName.trim());
+      params.set("q", searchName.trim());
     }
-    params.set("openFilters", "true"); // märgib et filtrid tuleks avada
+    params.set("openFilters", "true");
     router.push(`/search?${params.toString()}`);
   };
 
   return (
     <div className={styles.container}>
+      <Head>
+        <title>Tsunftimeistrid - Otsing</title>
+        <meta name="og:title" content="Tsunftimeistrid otsing" />
+      </Head>
+
       {/* Header logodega */}
       <header className={styles.header}>
         <div className={styles.logo}>
@@ -92,7 +95,6 @@ export default function Home() {
 
       {/* Sisu sektsioon: kontakt ja annotatsioon */}
       <div className={styles.contentSection}>
-        {/* Kontaktinfo */}
         <div className={styles.contact}>
           <h3>{homeContent.contact.title}</h3>
           <p className={styles.contactName}>{homeContent.contact.name}</p>
@@ -102,7 +104,6 @@ export default function Home() {
           </a>
         </div>
 
-        {/* Annotatsioon */}
         <div className={styles.annotation}>
           <h3>{homeContent.annotation.title}</h3>
           <p>{homeContent.annotation.text}</p>
@@ -118,7 +119,7 @@ export default function Home() {
               alt={`Galerii pilt ${index + 1}`}
               width={150}
               height={200}
-              objectFit="cover"
+              style={{ objectFit: "cover" }}
             />
           </div>
         ))}
