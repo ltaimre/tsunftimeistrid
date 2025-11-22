@@ -1,7 +1,6 @@
 // components/ResultsView.jsx
 "use client";
-import React, { useMemo, useEffect, useState, useRef } from "react";
-import { useRouter } from "next/router";
+import React, { useMemo, useEffect, useState } from "react";
 import ResultsTable from "./ResultsTable";
 import Pagination from "./Pagination";
 import SearchSummary from "./SearchSummary";
@@ -11,129 +10,70 @@ export default function ResultsView({
   filtered,
   isReady = false,
   pageSize = DEFAULT_PAGE_SIZE ?? 20,
-  queryKeyPage = "page",
-  queryKeyPageSize = "pageSize",
+  filters, // ⬅️ UUUS: võtame filtrid propsist
+  setFilters, // ⬅️ UUUS: võtame setFilters propsist
 }) {
-  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const routerReady = router.isReady && mounted;
-  const ready = isReady && routerReady;
-
-  const search = routerReady ? router.asPath.split("?")[1] || "" : "";
-  const params = useMemo(() => new URLSearchParams(search), [search]);
-
   const items = Array.isArray(filtered) ? filtered : [];
-  const urlPage = Number(params.get(queryKeyPage) || "1");
-  const urlPageSize = Number(params.get(queryKeyPageSize) || String(pageSize));
-  const effectivePageSize =
-    Number.isFinite(urlPageSize) && urlPageSize > 0 ? urlPageSize : pageSize;
+  const current = Number(filters?.page) || 1; // ⬅️ UUUS: loeme filtritest
 
   const total = items.length;
-  const totalPages = Math.max(1, Math.ceil(total / effectivePageSize));
-  const current =
-    Number.isFinite(urlPage) && urlPage >= 1
-      ? Math.min(urlPage, totalPages)
-      : 1;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const clampedCurrent = Math.max(1, Math.min(current, totalPages));
 
   const { pageItems, from, to } = useMemo(() => {
-    const start = (current - 1) * effectivePageSize;
-    const end = Math.min(start + effectivePageSize, total);
+    const start = (clampedCurrent - 1) * pageSize;
+    const end = Math.min(start + pageSize, total);
     return {
       pageItems: items.slice(start, end),
       from: total === 0 ? 0 : start + 1,
       to: end,
     };
-  }, [items, current, effectivePageSize, total]);
+  }, [items, clampedCurrent, pageSize, total]);
 
-  // Jälgime filtreid (mitte page parameetrit)
-  const filterParams = useMemo(() => {
-    if (!routerReady) return "";
-    const p = new URLSearchParams(params);
-    p.delete(queryKeyPage); // eemalda page
-    p.delete(queryKeyPageSize); // eemalda pageSize
-    return p.toString();
-  }, [params, routerReady, queryKeyPage, queryKeyPageSize]);
-
-  const prevFilterParamsRef = useRef(filterParams);
-
-  const replaceParams = (upd) => {
-    if (!routerReady) return;
-    const next = new URLSearchParams(params.toString());
-    Object.entries(upd).forEach(([k, v]) => {
-      if (v === undefined || v === null || v === "") next.delete(k);
-      else next.set(k, String(v));
-    });
-    const qs = next.toString();
-    router.replace(`${router.pathname}${qs ? `?${qs}` : ""}`, undefined, {
-      shallow: true,
-      scroll: false,
-    });
-  };
-
-  const pushParams = (upd) => {
-    if (!routerReady) return;
-    const next = new URLSearchParams(params.toString());
-    Object.entries(upd).forEach(([k, v]) => {
-      if (v === undefined || v === null || v === "") next.delete(k);
-      else next.set(k, String(v));
-    });
-    const qs = next.toString();
-    router.push(`${router.pathname}${qs ? `?${qs}` : ""}`, undefined, {
-      shallow: true,
-      scroll: false,
-    });
-  };
-
-  // Reset lehele 1 AINULT kui filtrid muutusid (mitte page number)
+  // ⬅️ UUUS: Reset lehele 1 kui filtrid muutuvad (aga mitte page)
+  const prevFilterHashRef = React.useRef("");
   useEffect(() => {
-    if (!routerReady) return;
+    if (!isReady || !mounted) return;
 
-    // Kui filtrid muutusid (aga mitte page)
-    if (prevFilterParamsRef.current !== filterParams) {
-      prevFilterParamsRef.current = filterParams;
+    // Teeme filtritest hashi (ilma page'ta)
+    const { page, ...filtersWithoutPage } = filters || {};
+    const hash = JSON.stringify(filtersWithoutPage);
 
-      // Kui hetkel ei ole lehel 1, siis reset
-      const currentPageStr = params.get(queryKeyPage) || "1";
-      if (currentPageStr !== "1") {
-        replaceParams({
-          [queryKeyPage]: 1,
-          [queryKeyPageSize]: effectivePageSize,
-        });
+    if (prevFilterHashRef.current && prevFilterHashRef.current !== hash) {
+      // Filtrid muutusid -> reset lehele 1
+      if (current !== 1) {
+        setFilters((prev) => ({ ...prev, page: 1 }));
       }
     }
-  }, [
-    filterParams,
-    routerReady,
-    params,
-    queryKeyPage,
-    queryKeyPageSize,
-    effectivePageSize,
-  ]);
+    prevFilterHashRef.current = hash;
+  }, [filters, isReady, mounted, current, setFilters]);
 
-  const setPage = (next) => {
-    if (!routerReady) return;
-    const clamped = Math.max(1, Math.min(next, totalPages));
-    pushParams({
-      [queryKeyPage]: clamped,
-      [queryKeyPageSize]: effectivePageSize,
-    });
+  const setPage = (nextPage) => {
+    const clamped = Math.max(1, Math.min(nextPage, totalPages));
+    setFilters((prev) => ({ ...prev, page: clamped }));
   };
 
   return (
     <section className="results-view">
       <div className="results-toolbar">
-        <SearchSummary total={total} from={from} to={to} isReady={ready} />
+        <SearchSummary
+          total={total}
+          from={from}
+          to={to}
+          isReady={isReady && mounted}
+        />
       </div>
 
-      {!ready ? (
+      {!isReady || !mounted ? (
         <div className="results-skeleton">Laadin andmeid…</div>
       ) : (
         <>
           <ResultsTable items={pageItems} />
           <Pagination
-            current={current}
+            current={clampedCurrent}
             totalPages={totalPages}
             onChange={setPage}
           />

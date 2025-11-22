@@ -5,20 +5,18 @@ import { useRouter } from "next/router";
 import useDebouncedEffect from "@/hooks/useDebouncedEffect";
 import { encodeFiltersToQuery, decodeQueryToFilters } from "@/lib/filtersQuery";
 
-const STORAGE_KEY = "filters:index";
+const STORAGE_KEY = "filters:search";
 
 export default function usePersistentFilters(getInitialFilters) {
   const router = useRouter();
 
   // 1) Alusta alati deterministlike vaikimisi filtritega.
-  //    ÄRA loe siin URL-i ega sessionStorage’it (vältimaks hydration-mismatch’i).
   const [filters, setFilters] = useState(() => getInitialFilters());
-  const [hydrated, setHydrated] = useState(false); // pärast esmast sünk’i URL/SS-ga
+  const [hydrated, setHydrated] = useState(false);
 
   const syncingFromUrlRef = useRef(true); // esmane sünk URL/SS -> state
 
-  // 2) Esmane sünk pärast mount’i (ja kui router on valmis):
-  //    loe enne URL, kui tühi – proovi sessionStorage.
+  // 2) Esmane sünk pärast mounti (ja kui router on valmis):
   useEffect(() => {
     if (!router.isReady) return;
 
@@ -36,11 +34,11 @@ export default function usePersistentFilters(getInitialFilters) {
     }
 
     setFilters(next);
-    syncingFromUrlRef.current = false; // esmane sünk tehtud
+    syncingFromUrlRef.current = false;
     setHydrated(true);
   }, [router.isReady, getInitialFilters]);
 
-  // 3) Kirjuta sessionStorage’isse, kui filtrid muutuvad (pärast esmast sünk’i)
+  // 3) Kirjuta sessionStorageisse, kui filtrid muutuvad
   useEffect(() => {
     if (!hydrated) return;
     try {
@@ -50,26 +48,25 @@ export default function usePersistentFilters(getInitialFilters) {
     }
   }, [filters, hydrated]);
 
-  // 4) Kirjuta URL-i (debounced), AINULT avalehel ja AINULT pärast esmast sünk’i
+  // 4) Kirjuta URL-i (debounced), AINULT /search lehel
   useDebouncedEffect(
     () => {
       if (!hydrated) return;
       if (!router.isReady) return;
-      if (router.pathname !== "/") return;
-      if (syncingFromUrlRef.current) return; // kui just loeme URL-ist, ära kirjuta tagasi
+      if (router.pathname !== "/search") return; // ⬅️ PARANDATUD: ainult search lehel
+      if (syncingFromUrlRef.current) return;
 
       const qs = encodeFiltersToQuery(filters);
-      const nextUrl = qs ? `/?${qs}` : `/`;
+      const nextUrl = qs ? `/search?${qs}` : `/search`;
 
-      if (router.asPath === nextUrl) return; // juba sama
+      if (router.asPath === nextUrl) return;
       router.replace(nextUrl, undefined, { shallow: true, scroll: false });
     },
     [filters, hydrated, router.isReady, router.pathname, router.asPath],
     250
   );
 
-  // 5) Kui kasutaja muudab query’t (back/forward või käsitsi),
-  //    sünkrooni see state’i (pärast esmast sünk’i).
+  // 5) Kui kasutaja muudab queryt (back/forward või käsitsi)
   useEffect(() => {
     if (!router.isReady) return;
     if (!hydrated) return;
@@ -78,12 +75,11 @@ export default function usePersistentFilters(getInitialFilters) {
       typeof window !== "undefined" ? window.location.search.slice(1) : "";
     const next = decodeQueryToFilters(search || "", getInitialFilters);
 
-    // tähista, et hetkel sünkroomeen URL-ist -> ei tohiks samal ajal URL-i kirjutada
     syncingFromUrlRef.current = true;
     setFilters((prev) =>
       JSON.stringify(prev) === JSON.stringify(next) ? prev : next
     );
-    // väike viide, et lasta render ära teha ja siis lubada uuesti kirjutamist
+
     const t = setTimeout(() => {
       syncingFromUrlRef.current = false;
     }, 0);

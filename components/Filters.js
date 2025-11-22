@@ -1,12 +1,15 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/router";
 
 export default function Filters({ filters, setFilters, options = {} }) {
-  // ——— paneelid ———
-  const [openCountries, setOpenCountries] = useState(() => new Set()); // riikide akordionid
-  const [openAdvanced, setOpenAdvanced] = useState(false); // ⟵ vaikimisi KINNI
+  const router = useRouter();
 
-  // ——— turvalised lühendid (vältimaks undefined.length jne) ———
+  // —— paneelid ——
+  const [openCountries, setOpenCountries] = useState(() => new Set());
+  const [openAdvanced, setOpenAdvanced] = useState(false);
+
+  // —— turvalised lühendid ——
   const safeJob = Array.isArray(filters?.job) ? filters.job : [];
   const safeProfession = Array.isArray(filters?.profession)
     ? filters.profession
@@ -23,7 +26,7 @@ export default function Filters({ filters, setFilters, options = {} }) {
     : [];
   const ranksOpt = Array.isArray(options?.ranks) ? options.ranks : [];
 
-  // ——— abid ———
+  // —— abid ——
   const onlyDigitsYear = (v) =>
     (v ?? "").toString().replace(/[^\d]/g, "").slice(0, 4);
 
@@ -67,21 +70,32 @@ export default function Filters({ filters, setFilters, options = {} }) {
     return count;
   }, [safeYears, safeJob, safeProfession, safeRank]);
 
-  // ——— Auto-open ONCE kui kasutaja tuli URL-i filtritega ———
+  // —— Auto-open kui URL sisaldab openFilters=true ——
   const didAutoOpenRef = useRef(false);
   useEffect(() => {
     if (didAutoOpenRef.current) return;
-    const hasUrlParams =
-      typeof window !== "undefined" && window.location.search.length > 1;
-    if (!hasUrlParams) {
-      didAutoOpenRef.current = true; // ei tee midagi, jääb vaikimisi kinni
-      return;
+    if (!router.isReady) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const shouldOpen = params.get("openFilters") === "true";
+
+    if (shouldOpen) {
+      setOpenAdvanced(true);
+      didAutoOpenRef.current = true;
+
+      // Eemalda openFilters URL-ist pärast avamist
+      params.delete("openFilters");
+      const newSearch = params.toString();
+      const newUrl = `${router.pathname}${newSearch ? `?${newSearch}` : ""}`;
+      router.replace(newUrl, undefined, { shallow: true });
+    } else if (advancedActiveCount > 0) {
+      // Kui URL-ist tulnud filtrid on peal, ava ka
+      setOpenAdvanced(true);
+      didAutoOpenRef.current = true;
+    } else {
+      didAutoOpenRef.current = true;
     }
-    if (advancedActiveCount > 0) {
-      setOpenAdvanced(true); // ava üks kord, kui URL-ist tulnud filtrid on peal
-      didAutoOpenRef.current = true; // ära enam automaatselt muuda
-    }
-  }, [advancedActiveCount]);
+  }, [router.isReady, advancedActiveCount]);
 
   return (
     <div className="filters-column">
@@ -145,7 +159,7 @@ export default function Filters({ filters, setFilters, options = {} }) {
                   }
                   aria-label="Tegutsemise algusaasta"
                 />
-                <span className="dash">–</span>
+                <span className="dash">—</span>
                 <input
                   type="number"
                   className="year-input no-spinner"

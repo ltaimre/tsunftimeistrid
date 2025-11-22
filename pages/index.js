@@ -1,17 +1,29 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 import Image from "next/image";
 import { homeContent } from "../config/homeContent";
 import styles from "../styles/Home.module.css";
 
 export default function Home() {
+  const router = useRouter();
   const [searchName, setSearchName] = useState("");
-  const [searchDetails, setSearchDetails] = useState("");
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Siin saad lisada otsinguloogika või suunata teisele lehele
-    console.log("Otsing:", { searchName, searchDetails });
-    // Näiteks: router.push(`/search?name=${searchName}&details=${searchDetails}`);
+    if (!searchName.trim()) return;
+
+    // Suuna search lehele koos query parameetriga
+    router.push(`/search?query=${encodeURIComponent(searchName.trim())}`);
+  };
+
+  const handleDetailSearch = () => {
+    // Suuna search lehele ja ava automaatselt täpsemad filtrid
+    const params = new URLSearchParams();
+    if (searchName.trim()) {
+      params.set("query", searchName.trim());
+    }
+    params.set("openFilters", "true"); // märgib et filtrid tuleks avada
+    router.push(`/search?${params.toString()}`);
   };
 
   return (
@@ -68,7 +80,11 @@ export default function Home() {
           </button>
         </div>
         <div className={styles.searchRow}>
-          <button type="button" className={styles.detailSearchButton}>
+          <button
+            type="button"
+            className={styles.detailSearchButton}
+            onClick={handleDetailSearch}
+          >
             {homeContent.search.detailsPlaceholder}
           </button>
         </div>

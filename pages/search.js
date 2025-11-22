@@ -1,4 +1,4 @@
-// pages/index.js
+// pages/search.js
 import Head from "next/head";
 import FiltersPanel from "@/components/FiltersPanel";
 import ResultsView from "@/components/ResultsView";
@@ -16,7 +16,7 @@ export async function getStaticProps() {
   };
 }
 
-export default function Home({ initialData }) {
+export default function SearchPage({ initialData }) {
   const { data, options, error, isLoading } = useSearchData({ initialData });
   const [filters, setFilters] = usePersistentFilters(getInitialFilters);
   const filtered = useFilteredData(data || [], filters || {});
@@ -24,8 +24,8 @@ export default function Home({ initialData }) {
   return (
     <div className="home-container">
       <Head>
-        <title>Tsunftimeistrid</title>
-        <meta name="og:title" content="tsunftimeisrid" />
+        <title>Tsunftimeistrid - Otsing</title>
+        <meta name="og:title" content="Tsunftimeistrid otsing" />
       </Head>
 
       <h1 className="page-title">Tsunftiga seotud meistrid</h1>
@@ -35,7 +35,12 @@ export default function Home({ initialData }) {
         setFilters={setFilters}
         options={options || {}}
       />
-      <ResultsView filtered={filtered} isReady={!isLoading} />
+      <ResultsView
+        filtered={filtered}
+        isReady={!isLoading}
+        filters={filters}
+        setFilters={setFilters}
+      />
     </div>
   );
 }
