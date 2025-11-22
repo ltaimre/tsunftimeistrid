@@ -1,16 +1,15 @@
 // components/ResultsView.jsx
 "use client";
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useMemo, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import ResultsTable from "./ResultsTable";
 import Pagination from "./Pagination";
 import SearchSummary from "./SearchSummary";
-import useDebouncedEffect from "@/hooks/useDebouncedEffect";
 import { RESULTS_PER_PAGE as DEFAULT_PAGE_SIZE } from "@/lib/constants";
 
 export default function ResultsView({
   filtered,
-  isReady = false, // andmete valmisolek (nt !isLoading)
+  isReady = false,
   pageSize = DEFAULT_PAGE_SIZE ?? 20,
   queryKeyPage = "page",
   queryKeyPageSize = "pageSize",
@@ -19,10 +18,9 @@ export default function ResultsView({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const routerReady = router.isReady && mounted; // ⬅️ mõlemad peavad true olema
-  const ready = isReady && routerReady; // ⬅️ koond-valmisolek
+  const routerReady = router.isReady && mounted;
+  const ready = isReady && routerReady;
 
-  // ära parsi queryt enne kui routerReady
   const search = routerReady ? router.asPath.split("?")[1] || "" : "";
   const params = useMemo(() => new URLSearchParams(search), [search]);
 
@@ -49,8 +47,19 @@ export default function ResultsView({
     };
   }, [items, current, effectivePageSize, total]);
 
+  // Jälgime filtreid (mitte page parameetrit)
+  const filterParams = useMemo(() => {
+    if (!routerReady) return "";
+    const p = new URLSearchParams(params);
+    p.delete(queryKeyPage); // eemalda page
+    p.delete(queryKeyPageSize); // eemalda pageSize
+    return p.toString();
+  }, [params, routerReady, queryKeyPage, queryKeyPageSize]);
+
+  const prevFilterParamsRef = useRef(filterParams);
+
   const replaceParams = (upd) => {
-    if (!routerReady || router.pathname !== "/") return;
+    if (!routerReady) return;
     const next = new URLSearchParams(params.toString());
     Object.entries(upd).forEach(([k, v]) => {
       if (v === undefined || v === null || v === "") next.delete(k);
@@ -64,7 +73,7 @@ export default function ResultsView({
   };
 
   const pushParams = (upd) => {
-    if (!routerReady || router.pathname !== "/") return;
+    if (!routerReady) return;
     const next = new URLSearchParams(params.toString());
     Object.entries(upd).forEach(([k, v]) => {
       if (v === undefined || v === null || v === "") next.delete(k);
@@ -77,26 +86,31 @@ export default function ResultsView({
     });
   };
 
-  useDebouncedEffect(
-    () => {
-      if (!routerReady || router.pathname !== "/") return;
+  // Reset lehele 1 AINULT kui filtrid muutusid (mitte page number)
+  useEffect(() => {
+    if (!routerReady) return;
+
+    // Kui filtrid muutusid (aga mitte page)
+    if (prevFilterParamsRef.current !== filterParams) {
+      prevFilterParamsRef.current = filterParams;
+
+      // Kui hetkel ei ole lehel 1, siis reset
       const currentPageStr = params.get(queryKeyPage) || "1";
-      if (currentPageStr === "1") return;
-      replaceParams({
-        [queryKeyPage]: 1,
-        [queryKeyPageSize]: effectivePageSize,
-      });
-    },
-    [
-      items,
-      routerReady,
-      router.pathname,
-      effectivePageSize,
-      queryKeyPage,
-      queryKeyPageSize,
-    ],
-    250
-  );
+      if (currentPageStr !== "1") {
+        replaceParams({
+          [queryKeyPage]: 1,
+          [queryKeyPageSize]: effectivePageSize,
+        });
+      }
+    }
+  }, [
+    filterParams,
+    routerReady,
+    params,
+    queryKeyPage,
+    queryKeyPageSize,
+    effectivePageSize,
+  ]);
 
   const setPage = (next) => {
     if (!routerReady) return;

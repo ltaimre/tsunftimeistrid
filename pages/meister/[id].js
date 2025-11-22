@@ -171,7 +171,7 @@ export default function MeisterDetail({
   const router = useRouter();
   // Ehita "tagasi" href säilitades päringuparameetrid
   const qs = new URLSearchParams(router.query || {}).toString();
-  const backHref = `/${qs ? `?${qs}` : ""}`;
+  const backHref = `/search${qs ? `?${qs}` : ""}`;
 
   const fullName = [meister?.eesnimi, meister?.perekonnanimi]
     .filter(Boolean)
