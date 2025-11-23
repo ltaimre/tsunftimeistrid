@@ -14,15 +14,6 @@ import { DETAIL_FIELDS } from "@/lib/constants";
 import MuisImage from "@/components/MuisImage";
 import ExternalLinkCard from "@/components/ExternalLinkCard";
 
-/**
- * Normaliseeri toorlingid:
- * - lõika ; , ja whitespace'i järgi
- * - trimmi
- * - valideeri URL
- * - eemalda duplikaadid
- * @param {string} raw
- * @returns {string[]}
- */
 function parseRawLinks(raw) {
   if (!raw || typeof raw !== "string") return [];
   const parts = raw
@@ -47,7 +38,6 @@ function parseRawLinks(raw) {
   return valid;
 }
 
-/** Kas URL on MUIS-ist */
 function isMuisUrl(url) {
   try {
     const u = new URL(url);
@@ -58,7 +48,6 @@ function isMuisUrl(url) {
   }
 }
 
-/** Host kuvamiseks (ilma www.) */
 function hostFrom(u) {
   try {
     return new URL(u).hostname.replace(/^www\./, "");
@@ -67,7 +56,6 @@ function hostFrom(u) {
   }
 }
 
-/** CTA tekst vastavalt hostile */
 function guessCta(u) {
   const host = hostFrom(u);
   const h = host.toLowerCase();
@@ -78,7 +66,6 @@ function guessCta(u) {
   return "Ava välisel lehel";
 }
 
-/** Vormindus – eemaldab liigsed reavahetused jms */
 function formatText(text) {
   if (typeof text !== "string") return text;
   return text
@@ -90,10 +77,6 @@ function formatText(text) {
     .trim();
 }
 
-/**
- * Kui väärtus on string ja sisaldab tükeldajaid, kuvatakse loendina.
- * Lubame nii koma kui semikooloni.
- */
 function renderValue(key, value) {
   if (key === "elulugu") {
     return <p>{formatText(value)}</p>;
@@ -117,75 +100,80 @@ function renderValue(key, value) {
 export async function getServerSideProps({ params }) {
   const meisterRaw = await fetchRowById(params.id, {
     sheetId: process.env.SHEET_ID,
-    gid: process.env.SHEET_GID, // kui vaja konkreetset lehte; muidu jäta ära
-    idCol: "A", // muuda vastavalt oma tabeli ID veeru tähega
-    idIsNumber: true, // pane true, kui ID veerus on arvud
+    gid: process.env.SHEET_GID,
+    idCol: "A",
+    idIsNumber: true,
   });
   if (!meisterRaw) return { notFound: true };
 
   const meister = filterObject(meisterRaw, DETAIL_FIELDS);
   if (meister.elulugu) meister.elulugu = formatText(meister.elulugu);
 
-  // Toetame erinevaid välja-nimesid, igaks juhuks
-  const rawLink =
-    meisterRaw.link || meisterRaw.Rawlink || meisterRaw.rawLink || "";
+  const rawLink = meisterRaw.link || "";
   const links = parseRawLinks(rawLink);
 
   const muisLinks = links.filter(isMuisUrl);
   const externalLinks = links.filter((l) => !isMuisUrl(l));
 
-  let muisImages = [];
-  let muisPublicLink = null;
+  const allMuisImages = [];
+  const muisLinksWithImages = [];
 
-  if (muisLinks.length > 0) {
-    const firstMuis = muisLinks[0];
-    const muisId = extractMuseaalId(firstMuis);
-    if (muisId) {
-      muisPublicLink = buildMuisLink(muisId);
-      try {
-        muisImages = await getObjectImages(muisId);
-      } catch (err) {
-        console.error("MUIS piltide laadimine ebaõnnestus:", err);
+  for (const muisUrl of muisLinks) {
+    const muisId = extractMuseaalId(muisUrl);
+    if (!muisId) {
+      console.warn("MUIS link, millelt ID-d ei saanud:", muisUrl);
+      continue;
+    }
+
+    const muisPublicLink = buildMuisLink(muisId);
+
+    try {
+      const images = await getObjectImages(muisId);
+      if (images && images.length > 0) {
+        // Salvesta iga pildi jaoks ka vastava MUIS lingi
+        images.forEach((imgUrl) => {
+          allMuisImages.push({
+            url: imgUrl,
+            muisLink: muisPublicLink,
+            muisId: muisId,
+          });
+        });
+        muisLinksWithImages.push(muisPublicLink);
       }
-    } else {
-      console.warn("MUIS link, millelt ID-d ei saanud:", firstMuis);
+    } catch (err) {
+      console.error(`MUIS piltide laadimine ebaõnnestus (${muisId}):`, err);
     }
   }
 
   return {
     props: {
       meister,
-      muisImages,
-      muisPublicLink,
+      muisImages: allMuisImages,
       externalLinks,
     },
   };
 }
 
-export default function MeisterDetail({
-  meister,
-  muisImages,
-  muisPublicLink,
-  externalLinks,
-}) {
+export default function MeisterDetail({ meister, muisImages, externalLinks }) {
   const router = useRouter();
-  // Ehita "tagasi" href säilitades päringuparameetrid
   const qs = new URLSearchParams(router.query || {}).toString();
   const backHref = `/search${qs ? `?${qs}` : ""}`;
 
   const fullName = [meister?.eesnimi, meister?.perekonnanimi]
     .filter(Boolean)
     .join(" ");
+
   return (
     <div className="meister-detail">
       <Head>
         <title>
           {fullName
-            ? `${fullName} — tsunftimeisrid`
-            : "Meister — tsunftimeisrid"}
+            ? `${fullName} – tsunftimeisrid`
+            : "Meister – tsunftimeisrid"}
         </title>
         <meta name="og:title" content={fullName || "Meister"} />
       </Head>
+
       <div className="backbar">
         <Link
           href={backHref}
@@ -216,16 +204,16 @@ export default function MeisterDetail({
 
       {(muisImages?.length > 0 || externalLinks?.length > 0) && (
         <div className="meister-media-grid">
-          {/* MUIS pildid */}
+          {/* MUIS pildid - nüüd kõigilt linkidelt */}
           {muisImages?.length > 0 &&
-            muisImages.map((imgUrl, idx) => (
+            muisImages.map((imageData, idx) => (
               <MuisImage
-                key={`muis-${idx}`}
-                src={imgUrl}
+                key={`muis-${imageData.muisId}-${idx}`}
+                src={imageData.url}
                 alt={`${fullName || "Meister"} pilt ${idx + 1}`}
                 aspectRatio="4/3"
-                caption={`Allikas: muis.ee (${idx + 1})`}
-                link={muisPublicLink}
+                caption={`Allikas: muis.ee (${imageData.muisId})`}
+                link={imageData.muisLink}
                 size="md"
               />
             ))}
