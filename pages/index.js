@@ -3,6 +3,8 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import Image from "next/image";
 import { homeContent } from "../config/homeContent";
+import { homeGallery } from "../config/homeGallery";
+import HomeCarousel from "../components/HomeCarousel";
 import styles from "../styles/Home.module.css";
 
 export default function Home() {
@@ -27,7 +29,7 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Tsunftimeistrid - Otsing</title>
+        <title>Tsunftimeistrid</title>
         <meta name="og:title" content="Tsunftimeistrid otsing" />
       </Head>
 
@@ -110,20 +112,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Galerii */}
-      <div className={styles.gallery}>
-        {homeContent.gallery.map((image, index) => (
-          <div key={index} className={styles.galleryItem}>
-            <Image
-              src={image}
-              alt={`Galerii pilt ${index + 1}`}
-              width={150}
-              height={200}
-              style={{ objectFit: "cover" }}
-            />
-          </div>
-        ))}
-      </div>
+      {/* Galerii carousel */}
+      <HomeCarousel items={homeGallery} />
     </div>
   );
 }

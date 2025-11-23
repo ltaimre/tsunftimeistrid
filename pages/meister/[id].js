@@ -11,7 +11,7 @@ import { filterObject } from "@/lib/filterObject";
 import { labelFor } from "@/lib/labels";
 import { DETAIL_FIELDS } from "@/lib/constants";
 
-import MuisImage from "@/components/MuisImage";
+import MuisGallery from "@/components/MuisGallery";
 import ExternalLinkCard from "@/components/ExternalLinkCard";
 
 function parseRawLinks(raw) {
@@ -115,6 +115,7 @@ export async function getServerSideProps({ params }) {
   const muisLinks = links.filter(isMuisUrl);
   const externalLinks = links.filter((l) => !isMuisUrl(l));
 
+  // ⬅️ UUUS: Lae pildid KÕIGILT MUIS linkidelt
   const allMuisImages = [];
   const muisLinksWithImages = [];
 
@@ -203,36 +204,33 @@ export default function MeisterDetail({ meister, muisImages, externalLinks }) {
       </table>
 
       {(muisImages?.length > 0 || externalLinks?.length > 0) && (
-        <div className="meister-media-grid">
-          {/* MUIS pildid - nüüd kõigilt linkidelt */}
-          {muisImages?.length > 0 &&
-            muisImages.map((imageData, idx) => (
-              <MuisImage
-                key={`muis-${imageData.muisId}-${idx}`}
-                src={imageData.url}
-                alt={`${fullName || "Meister"} pilt ${idx + 1}`}
-                aspectRatio="4/3"
-                caption={`Allikas: muis.ee (${imageData.muisId})`}
-                link={imageData.muisLink}
-                size="md"
-              />
-            ))}
+        <>
+          {/* MUIS Galerii */}
+          {muisImages?.length > 0 && (
+            <MuisGallery
+              images={muisImages}
+              altPrefix={fullName || "Meister"}
+            />
+          )}
 
           {/* Välised lingid */}
-          {externalLinks?.length > 0 &&
-            externalLinks.map((url, i) => (
-              <ExternalLinkCard
-                key={`ext-${i}`}
-                title="Väline allikas"
-                subtitle={hostFrom(url)}
-                caption="Viide: välisallikas"
-                link={url}
-                ctaLabel={guessCta(url)}
-                aspectRatio="4/3"
-                size="md"
-              />
-            ))}
-        </div>
+          {externalLinks?.length > 0 && (
+            <div className="meister-media-grid">
+              {externalLinks.map((url, i) => (
+                <ExternalLinkCard
+                  key={`ext-${i}`}
+                  title="Väline allikas"
+                  subtitle={hostFrom(url)}
+                  caption="Viide: välisallikas"
+                  link={url}
+                  ctaLabel={guessCta(url)}
+                  aspectRatio="4/3"
+                  size="md"
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
