@@ -67,12 +67,8 @@ export async function getWikiImageUrl(filename, width = 1200) {
     apiUrl.searchParams.set("format", "json");
     apiUrl.searchParams.set("origin", "*");
 
-    console.log("WikiMedia API URL:", apiUrl.toString()); // Debug
-
     const response = await fetch(apiUrl.toString());
     const data = await response.json();
-
-    console.log("WikiMedia API response:", JSON.stringify(data, null, 2)); // Debug
 
     if (!data.query || !data.query.pages) {
       console.error("WikiMedia API: no pages in response");

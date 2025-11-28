@@ -184,8 +184,6 @@ export async function getServerSideProps({ params }) {
 
   // Kombineeri kõik pildid ühte massiivi
   const allImages = [...allMuisImages, ...allWikiImages];
-  console.log("RAW LINK FROM SHEET:", meisterRaw.link);
-  console.log("ALL LINKS PARSED:", links);
 
   return {
     props: {
