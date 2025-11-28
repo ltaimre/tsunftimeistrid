@@ -3,7 +3,7 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      // lubame nii http kui https; sinu URL oli http://...
+      // MUIS
       {
         protocol: "http",
         hostname: "opendata.muis.ee",
@@ -14,9 +14,17 @@ const nextConfig = {
         hostname: "opendata.muis.ee",
         pathname: "/dhmedia/**",
       },
-      // (valikuline) kui mõni pilt tuleb ka muis.ee alt
-      // { protocol: 'https', hostname: 'muis.ee', pathname: '/**' },
-      // { protocol: 'http',  hostname: 'muis.ee', pathname: '/**' },
+      // WikiMedia Commons
+      {
+        protocol: "https",
+        hostname: "commons.wikimedia.org",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "upload.wikimedia.org",
+        pathname: "/**",
+      },
     ],
   },
 };

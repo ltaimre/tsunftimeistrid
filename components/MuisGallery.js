@@ -53,50 +53,64 @@ export default function MuisGallery({ images = [], altPrefix = "Pilt" }) {
 
   const currentImage = images[currentIndex];
 
+  // Määra lingi URL ja tekst vastavalt tüübile
+  const getImageLink = (img) => {
+    if (img.type === "wiki") {
+      return { url: img.wikiLink, label: "Ava WikiCommons-is" };
+    }
+    return { url: img.muisLink, label: "Ava MUIS-is" };
+  };
+
+  const currentLink = getImageLink(currentImage);
+  const getThumbLink = (img) => getImageLink(img);
+
   return (
     <>
       {/* Thumbnail Grid */}
       <div className={styles.grid}>
-        {images.map((img, idx) => (
-          <div
-            key={`thumb-${img.muisId}-${idx}`}
-            className={styles.thumbnail}
-            onClick={() => openLightbox(idx)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                openLightbox(idx);
-              }
-            }}
-            aria-label={`Vaata pilti ${idx + 1}`}
-          >
-            <div className={styles.thumbFrame}>
-              <Image
-                src={img.url}
-                alt={`${altPrefix} ${idx + 1}`}
-                fill
-                sizes="(max-width: 600px) 50vw, (max-width: 1024px) 33vw, 280px"
-                style={{ objectFit: "cover" }}
-              />
+        {images.map((img, idx) => {
+          const thumbLink = getThumbLink(img);
+          return (
+            <div
+              key={`thumb-${img.muisId || img.filename}-${idx}`}
+              className={styles.thumbnail}
+              onClick={() => openLightbox(idx)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  openLightbox(idx);
+                }
+              }}
+              aria-label={`Vaata pilti ${idx + 1}`}
+            >
+              <div className={styles.thumbFrame}>
+                <Image
+                  src={img.url}
+                  alt={`${altPrefix} ${idx + 1}`}
+                  fill
+                  sizes="(max-width: 600px) 50vw, (max-width: 1024px) 33vw, 280px"
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
+              <div className={styles.thumbCaption}>
+                <span className={styles.thumbCounter}>
+                  {idx + 1}/{images.length}
+                </span>
+                <a
+                  href={thumbLink.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.thumbLink}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {thumbLink.label}
+                </a>
+              </div>
             </div>
-            <div className={styles.thumbCaption}>
-              <span className={styles.thumbCounter}>
-                {idx + 1}/{images.length}
-              </span>
-              <a
-                href={img.muisLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.thumbLink}
-                onClick={(e) => e.stopPropagation()}
-              >
-                Ava MUIS-is
-              </a>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Lightbox */}
@@ -172,7 +186,7 @@ export default function MuisGallery({ images = [], altPrefix = "Pilt" }) {
                 </span>
               </div>
               <a
-                href={currentImage.muisLink}
+                href={currentLink.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.muisLink}
@@ -186,7 +200,7 @@ export default function MuisGallery({ images = [], altPrefix = "Pilt" }) {
                 >
                   <path d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
                 </svg>
-                Ava MUIS-is
+                {currentLink.label}
               </a>
             </div>
           </div>

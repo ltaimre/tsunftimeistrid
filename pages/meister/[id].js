@@ -7,6 +7,12 @@ import { fetchRowById } from "@/utils/fetchRowById";
 import { extractMuseaalId } from "@/utils/parseMuisUrl";
 import { buildMuisLink } from "@/utils/buildMuisLink";
 import { getObjectImages } from "@/utils/fetchImagesUrl";
+import {
+  isWikiUrl,
+  extractWikiFilename,
+  buildWikiCommonsLink,
+  getWikiImageUrl,
+} from "@/utils/parseWikiUrl";
 import { filterObject } from "@/lib/filterObject";
 import { labelFor } from "@/lib/labels";
 import { DETAIL_FIELDS } from "@/lib/constants";
@@ -16,8 +22,9 @@ import ExternalLinkCard from "@/components/ExternalLinkCard";
 
 function parseRawLinks(raw) {
   if (!raw || typeof raw !== "string") return [];
+  // Split only on whitespace and semicolons, NOT commas (commas can be part of filenames)
   const parts = raw
-    .split(/[\s;,]+/g)
+    .split(/[\s;]+/g)
     .map((s) => s.trim())
     .filter(Boolean);
 
@@ -113,11 +120,11 @@ export async function getServerSideProps({ params }) {
   const links = parseRawLinks(rawLink);
 
   const muisLinks = links.filter(isMuisUrl);
-  const externalLinks = links.filter((l) => !isMuisUrl(l));
+  const wikiLinks = links.filter(isWikiUrl);
+  const externalLinks = links.filter((l) => !isMuisUrl(l) && !isWikiUrl(l));
 
-  // ⬅️ UUUS: Lae pildid KÕIGILT MUIS linkidelt
+  // ⬅️ MUIS pildid
   const allMuisImages = [];
-  const muisLinksWithImages = [];
 
   for (const muisUrl of muisLinks) {
     const muisId = extractMuseaalId(muisUrl);
@@ -131,31 +138,65 @@ export async function getServerSideProps({ params }) {
     try {
       const images = await getObjectImages(muisId);
       if (images && images.length > 0) {
-        // Salvesta iga pildi jaoks ka vastava MUIS lingi
         images.forEach((imgUrl) => {
           allMuisImages.push({
             url: imgUrl,
             muisLink: muisPublicLink,
             muisId: muisId,
+            type: "muis",
           });
         });
-        muisLinksWithImages.push(muisPublicLink);
       }
     } catch (err) {
       console.error(`MUIS piltide laadimine ebaõnnestus (${muisId}):`, err);
     }
   }
 
+  // ⬅️ WikiMedia pildid
+  const allWikiImages = [];
+
+  for (const wikiUrl of wikiLinks) {
+    const filename = extractWikiFilename(wikiUrl);
+    if (!filename) {
+      console.warn("Wiki link, millelt failinime ei saanud:", wikiUrl);
+      continue;
+    }
+
+    const wikiCommonsLink = buildWikiCommonsLink(filename);
+
+    try {
+      const imageUrl = await getWikiImageUrl(filename, 1200);
+
+      if (imageUrl) {
+        allWikiImages.push({
+          url: imageUrl,
+          wikiLink: wikiCommonsLink,
+          filename: filename,
+          type: "wiki",
+        });
+      } else {
+        console.warn(`Wiki pildi URL-i ei saadud: ${filename}`);
+      }
+    } catch (err) {
+      console.error(`Wiki pildi laadimine ebaõnnestus (${filename}):`, err);
+    }
+  }
+
+  // Kombineeri kõik pildid ühte massiivi
+  const allImages = [...allMuisImages, ...allWikiImages];
+  console.log("RAW LINK FROM SHEET:", meisterRaw.link);
+  console.log("ALL LINKS PARSED:", links);
+
   return {
     props: {
       meister,
-      muisImages: allMuisImages,
+      allImages,
       externalLinks,
     },
   };
 }
 
-export default function MeisterDetail({ meister, muisImages, externalLinks }) {
+export default function MeisterDetail({ meister, allImages, externalLinks }) {
   const router = useRouter();
   const qs = new URLSearchParams(router.query || {}).toString();
   const backHref = `/search${qs ? `?${qs}` : ""}`;
@@ -203,14 +244,11 @@ export default function MeisterDetail({ meister, muisImages, externalLinks }) {
         </tbody>
       </table>
 
-      {(muisImages?.length > 0 || externalLinks?.length > 0) && (
+      {(allImages?.length > 0 || externalLinks?.length > 0) && (
         <>
-          {/* MUIS Galerii */}
-          {muisImages?.length > 0 && (
-            <MuisGallery
-              images={muisImages}
-              altPrefix={fullName || "Meister"}
-            />
+          {/* Galerii (MUIS + WikiMedia) */}
+          {allImages?.length > 0 && (
+            <MuisGallery images={allImages} altPrefix={fullName || "Meister"} />
           )}
 
           {/* Välised lingid */}
