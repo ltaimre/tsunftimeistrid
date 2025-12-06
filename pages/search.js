@@ -12,7 +12,7 @@ export async function getStaticProps() {
   const parsed = await fetchData();
   return {
     props: { initialData: parsed?.data || [] },
-    revalidate: 60,
+    revalidate: 600,
   };
 }
 
