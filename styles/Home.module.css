@@ -1,283 +1,294 @@
 .container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background-color: #f8f8f8;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #f8f8f8;
+}
+
+/* Header ja logo */
+.header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 40px;
+  padding: 20px 40px;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Fikseeritud kõrgus logole */
+.logoImage {
+  width: auto !important;
+  height: 45px !important;
+  max-height: 45px !important;
+  max-width: 100% !important;
+  object-fit: contain !important;
+}
+
+/* Pealkirjad */
+.titleSection {
+  text-align: center;
+  margin-bottom: 40px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mainTitle {
+  font-size: 48px;
+  font-weight: bold;
+  color: #d32f2f;
+  letter-spacing: 2px;
+  margin: 0 0 15px 0;
+}
+
+.subtitle {
+  font-size: 18px;
+  font-weight: normal;
+  color: #d32f2f;
+  margin: 0;
+}
+
+/* Otsing */
+.searchSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 50px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.searchRow {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+  max-width: 800px;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: 2px solid #333;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.searchInputSmall {
+  width: 100%;
+  max-width: 400px;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: 2px solid #333;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.searchInput:focus,
+.searchInputSmall:focus {
+  outline: none;
+  border-color: #d32f2f;
+}
+
+.refreshButton {
+  width: 48px;
+  height: 48px;
+  border: 2px solid #333;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.refreshButton:hover {
+  background-color: #f0f0f0;
+}
+
+.searchButton {
+  width: 48px;
+  height: 48px;
+  border: 2px solid #333;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.searchButton:hover {
+  background-color: #f0f0f0;
+}
+
+.detailSearchButton {
+  padding: 12px 20px;
+  font-size: 16px;
+  border: 2px solid #333;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  text-align: left;
+  color: #666;
+  transition: background-color 0.2s;
+}
+
+.detailSearchButton:hover {
+  background-color: #f0f0f0;
+}
+
+/* Sisu sektsioon */
+.contentSection {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 40px;
+  margin-bottom: 50px;
+  align-items: start;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Kontakt */
+.contact {
+  background-color: white;
+  padding: 25px;
+  border-radius: 4px;
+}
+
+.contact h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.contact p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+}
+
+.contactName {
+  font-weight: 600;
+  color: #333;
+}
+
+.contact a {
+  color: #1976d2;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.contact a:hover {
+  text-decoration: underline;
+}
+
+/* Annotatsioon */
+.annotation {
+  background-color: white;
+  padding: 25px;
+  border-radius: 4px;
+}
+
+.annotation h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.annotation p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #333;
+  text-align: justify;
+}
+
+/* Galerii */
+.gallery {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 20px 0;
+}
+
+.galleryItem {
+  flex: 0 0 auto;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.galleryItem:hover {
+  transform: scale(1.05);
+}
+
+/* Responsiivsus */
+@media (max-width: 1024px) {
+  .contentSection {
+    grid-template-columns: 1fr;
+    gap: 30px;
   }
   
-  /* Header ja logod */
+  .gallery {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
   .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 40px;
-    padding: 20px 0;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+    justify-content: center;
+    padding: 20px;
   }
   
-  .logo {
-    flex: 0 0 120px;
-    display: flex;
-    align-items: center;
+  .logoContainer {
     justify-content: center;
   }
   
-  .logoCentre {
-    flex: 0 0 120px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  /* Pealkirjad */
-  .titleSection {
-    text-align: center;
-    margin-bottom: 40px;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+  .logoImage {
+    height: 40px !important;
+    max-height: 40px;
   }
   
   .mainTitle {
-    font-size: 48px;
-    font-weight: bold;
-    color: #d32f2f;
-    letter-spacing: 2px;
-    margin: 0 0 15px 0;
+    font-size: 32px;
   }
   
   .subtitle {
-    font-size: 18px;
-    font-weight: normal;
-    color: #d32f2f;
-    margin: 0;
-  }
-  
-  /* Otsing */
-  .searchSection {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 50px;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  .searchRow {
-    display: flex;
-    gap: 15px;
-    width: 100%;
-    max-width: 800px;
-  }
-  
-  .searchInput {
-    flex: 1;
-    padding: 12px 20px;
     font-size: 16px;
-    border: 2px solid #333;
-    border-radius: 4px;
-    background-color: white;
   }
   
+  .searchSection,
+  .searchRow {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .searchInput,
   .searchInputSmall {
     width: 100%;
-    max-width: 400px;
-    padding: 12px 20px;
-    font-size: 16px;
-    border: 2px solid #333;
-    border-radius: 4px;
-    background-color: white;
+    max-width: 100%;
   }
-  
-  .searchInput:focus,
-  .searchInputSmall:focus {
-    outline: none;
-    border-color: #d32f2f;
-  }
-  
-  .refreshButton {
-    width: 48px;
-    height: 48px;
-    border: 2px solid #333;
-    border-radius: 4px;
-    background-color: white;
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s;
-  }
-  
-  .refreshButton:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .searchButton {
-    width: 48px;
-    height: 48px;
-    border: 2px solid #333;
-    border-radius: 4px;
-    background-color: white;
-    font-size: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s;
-  }
-  
-  .searchButton:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .detailSearchButton {
-    padding: 12px 20px;
-    font-size: 16px;
-    border: 2px solid #333;
-    border-radius: 4px;
-    background-color: white;
-    cursor: pointer;
-    text-align: left;
-    color: #666;
-    transition: background-color 0.2s;
-  }
-  
-  .detailSearchButton:hover {
-    background-color: #f0f0f0;
-  }
-  
-  /* Sisu sektsioon */
-  .contentSection {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 40px;
-    margin-bottom: 50px;
-    align-items: start;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  /* Kontakt */
-  .contact {
-    background-color: white;
-    padding: 25px;
-    border-radius: 4px;
-  }
-  
-  .contact h3 {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 0 0 15px 0;
-    color: #333;
-  }
-  
-  .contact p {
-    margin: 8px 0;
-    font-size: 14px;
-    color: #555;
-    line-height: 1.5;
-  }
-  
-  .contactName {
-    font-weight: 600;
-    color: #333;
-  }
-  
-  .contact a {
-    color: #1976d2;
-    text-decoration: none;
-    font-size: 14px;
-  }
-  
-  .contact a:hover {
-    text-decoration: underline;
-  }
-  
-  /* Annotatsioon */
-  .annotation {
-    background-color: white;
-    padding: 25px;
-    border-radius: 4px;
-  }
-  
-  .annotation h3 {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 0 0 15px 0;
-    color: #333;
-  }
-  
-  .annotation p {
-    font-size: 14px;
-    line-height: 1.8;
-    color: #333;
-    text-align: justify;
-  }
-  
-  /* Galerii */
-  .gallery {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    overflow-x: auto;
-    padding: 20px 0;
-  }
-  
-  .galleryItem {
-    flex: 0 0 auto;
-    border-radius: 4px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
-  }
-  
-  .galleryItem:hover {
-    transform: scale(1.05);
-  }
-  
-  /* Responsiivsus */
-  @media (max-width: 1024px) {
-    .contentSection {
-      grid-template-columns: 1fr;
-      gap: 30px;
-    }
-    
-    .gallery {
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .header {
-      flex-direction: column;
-      gap: 20px;
-    }
-    
-    .mainTitle {
-      font-size: 32px;
-    }
-    
-    .subtitle {
-      font-size: 16px;
-    }
-    
-    .searchSection,
-    .searchRow {
-      flex-direction: column;
-      width: 100%;
-    }
-    
-    .searchInput,
-    .searchInputSmall {
-      width: 100%;
-      max-width: 100%;
-    }
-  }
+}

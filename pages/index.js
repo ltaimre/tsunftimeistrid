@@ -33,33 +33,15 @@ export default function Home() {
         <meta name="og:title" content="Tsunftimeistrid otsing" />
       </Head>
 
-      {/* Header logodega */}
+      {/* Header logoga */}
       <header className={styles.header}>
-        <div className={styles.logo}>
-          <Image
-            src={homeContent.logos.left}
-            alt="TLA"
-            width={180}
-            height={90}
-            style={{ width: "auto", height: "auto", maxHeight: "75px" }}
-          />
-        </div>
-        <div className={styles.logoCentre}>
+        <div className={styles.logoContainer}>
           <Image
             src={homeContent.logos.center}
             alt="EKA"
             width={180}
             height={90}
-            style={{ width: "auto", height: "auto", maxHeight: "75px" }}
-          />
-        </div>
-        <div className={styles.logo}>
-          <Image
-            src={homeContent.logos.right}
-            alt="EKM"
-            width={180}
-            height={90}
-            style={{ width: "auto", height: "auto", maxHeight: "75px" }}
+            className={styles.logoImage}
           />
         </div>
       </header>

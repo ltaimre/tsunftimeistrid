@@ -13,18 +13,6 @@ export const homeGallery = [
     link: "/meister/116",
   },
   {
-    id: "3",
-    image: "/images/gallery/image3.jpg",
-    artist: "Johann Cristoffer Anderson",
-    link: "/meister/64",
-  },
-  {
-    id: "4",
-    image: "/images/gallery/image4.jpg",
-    artist: "Christop Fock",
-    link: "/meister/69",
-  },
-  {
     id: "5",
     image: "/images/gallery/image5.jpg",
     artist: "U. F. Freiburg",
@@ -46,7 +34,7 @@ export const homeGallery = [
     id: "8",
     image: "/images/gallery/image8.jpg",
     artist: "Johann Cristoffer Anderson",
-    link: "/meister/64",
+    link: "/meister/441",
   },
   {
     id: "9",
