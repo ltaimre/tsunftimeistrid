@@ -1,0 +1,792 @@
+/************************************************************
+ * TABELID / LISTID
+ ************************************************************/
+
+/* horisontaalne scroll kitsastel ekraanidel */
+.table-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+/* põhilaud */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.95rem;
+  border: 1px solid #bbb;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.data-table th,
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.data-table th {
+  background-color: #eaf4ff;
+  color: #333;
+  text-align: left;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.data-table tr:nth-child(even) td {
+  background-color: #f9f9f9;
+}
+
+.data-table tr:hover td {
+  background-color: #f1faff;
+}
+
+
+/************************************************************
+ * DETAILVAATE TABEL
+ ************************************************************/
+
+.meister-detail {
+  padding: 24px;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fdfdfd;
+}
+
+.meister-detail h1 {
+  font-size: 1.75rem;
+  margin-bottom: 24px;
+  color: #1a202c;
+}
+
+.meister-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.meister-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #ddd;
+  vertical-align: top;
+}
+
+.meister-table .label {
+  font-weight: bold;
+  width: 30%;
+  background-color: #f6f6f6;
+}
+
+
+/************************************************************
+ * AVALAEHT / ÜLDISED PEALKIRJAD
+ ************************************************************/
+
+.home-container {
+  padding: 24px;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fafafa;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  margin-bottom: 16px;
+  color: #2c5282;
+}
+
+
+/************************************************************
+ * FILTRID – LAYOUT JA SISENDID
+ ************************************************************/
+
+/* vasak filter-kolumn */
+.filters-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* otsilahter (täislaiuses) */
+.wide-input {
+  padding: 10px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+}
+
+/* grid paigutus väiksematel ekraanidel 1 veerg, suurematel 2 */
+.filters-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .filters-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* üldised sisendstiilid gridi sees */
+.filters-grid input,
+.filters-grid select {
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border 0.2s;
+}
+
+.filters-grid input:focus,
+.filters-grid select:focus {
+  border-color: #3182ce;
+  outline: none;
+}
+
+/* aastavahemiku horisontaalne paigutus */
+.year-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.year-range input {
+  width: 100%;
+  max-width: 120px;
+  padding: 8px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.dash {
+  font-size: 1.2rem;
+  color: #333;
+}
+
+/* paindlik kahest aastaväljast koosnev rida (kasutus kohtades, kus pole .year-range) */
+.year-inputs {
+  display: flex;
+  gap: 8px;
+}
+
+.year-inputs input {
+  flex: 1;
+  padding: 10px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* mitmikvaliku checkbox-rühmad */
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 4px;
+  margin-bottom: 1rem;
+}
+
+.checkbox-item {
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+
+/************************************************************
+ * AKTIIVSED FILTRID / NUPUD
+ ************************************************************/
+
+/* “tühjenda filtrid” kahvatu nupp */
+.clear-filters-btn {
+  background-color: #edf2f7;
+  border: 1px solid #cbd5e0;
+  padding: 6px 12px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.clear-filters-btn:hover {
+  background-color: #e2e8f0;
+}
+
+/* aktiivsete filtrite “tagid” */
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.filter-tag {
+  background-color: #bee3f8;
+  color: #1a365d;
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+}
+
+/* X nupp tag’il */
+.remove-btn {
+  background: none;
+  border: none;
+  color: #2c5282;
+  margin-left: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.remove-btn:hover {
+  color: crimson;
+}
+
+
+/************************************************************
+ * TÖÖKOHAD – RIIGID & LINNAD (AKORDION)
+ ************************************************************/
+
+/* “riikide grupp” – jääb alles, kui seda kasutatakse mujal */
+.country-group .country-block { margin-bottom: 0.75rem; }
+.country-group .country-title { font-weight: 600; margin: 0.25rem 0; }
+.country-group .cities { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; }
+
+/* akordioni üksikud sektsioonid */
+.country-accordion .country-section { border-bottom: 1px solid #eee; }
+
+/* ÜLDINE akordioninupp (kasutatakse nii advanced-nupul kui riiginuppudel;
+   advanced-nupu jaoks tuleb allpool täpsem selektor, mis selle visuaalselt üle kirjutab) */
+.country-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: 100%;
+  padding: .25rem 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.country-header:hover { background: rgba(0,0,0,0.03); }
+
+/* väike nooleke */
+.chevron { display: inline-block; transition: transform .15s ease; }
+.chevron.open { transform: rotate(90deg); }
+
+/* pealkiri + optional badge */
+.country-title { font-weight: 600; display: inline-flex; align-items: center; gap: .5rem; }
+
+/* neutraalne badge (riikide lõikes valitud linnad) */
+.badge {
+  font-weight: 600;
+  font-size: .75rem;
+  padding: 0 .4rem;
+  border-radius: .5rem;
+  background: #eaeaea;
+}
+
+/* linnade konteiner */
+.cities {
+  margin: .25rem 0 .5rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+}
+
+
+/************************************************************
+ * ADVANCED-TOGGLE (“Otsi täpsemalt”) – eristuvalt esmane
+ * NB! JSX-i muuta pole vaja; sihime aria-controls atribuuti
+ ************************************************************/
+
+/* eristuv, suurem nupp – ainult see, millel aria-controls="advanced-filters" */
+.country-header[aria-controls="advanced-filters"] {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+
+  width: 100%;
+  padding: .75rem .9rem;
+  border-radius: 10px;
+
+  background: #eef4ff;           /* pehme sinakas taust */
+  border: 1px solid #c9d6ff;     /* eristuv ääris */
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+  color: #1a237e;                /* tumedam sinine tekst */
+
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: .1px;
+  cursor: pointer;
+
+  transition:
+    background-color .15s ease,
+    box-shadow .15s ease,
+    transform .05s ease;
+  min-height: 44px;              /* parem tabatavus */
+}
+
+.country-header[aria-controls="advanced-filters"]:hover {
+  background: #e5edff;
+  box-shadow: 0 2px 6px rgba(26, 35, 126, 0.12);
+}
+
+.country-header[aria-controls="advanced-filters"]:active {
+  transform: translateY(1px);
+}
+
+.country-header[aria-controls="advanced-filters"]:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* suurem chevron */
+.country-header[aria-controls="advanced-filters"] .chevron {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+/* pealkiri & badge erksamad toonid */
+.country-header[aria-controls="advanced-filters"] .country-title {
+  color: #0f1b61;
+}
+
+.country-header[aria-controls="advanced-filters"] .badge {
+  background: #3b82f6;
+  color: #fff;
+  border-radius: 10px;
+  padding: 0 .5rem;
+  font-weight: 700;
+}
+
+/* samal ajal hoia riikide akordioni nupud tagasihoidlikumad,
+   et mitte konkureerida advanced-nupuga */
+.country-accordion .country-header {
+  padding: .35rem 0;
+  background: transparent;
+  border: 0;
+  color: #374151;
+  font-weight: 600;
+  box-shadow: none;
+  min-height: 32px;
+}
+
+.country-accordion .country-header:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.country-accordion .country-header .badge {
+  background: #eaeaea;
+  color: #333;
+}
+
+.country-accordion .country-header .chevron {
+  font-size: .95rem;
+}
+
+/************************************************************
+ * TÄPSUSTUSED: Advanced-nupp kompaktsemaks + plokkide vahed
+ ************************************************************/
+
+/* vaikimisi: nupp on kompaktne, mitte täislaiuses */
+.country-header[aria-controls="advanced-filters"] {
+  width: auto;                /* ⟵ enam pole 100% */
+  display: inline-flex;       /* hoiab sisu reas, võtab oma loomuliku laiuse */
+  max-width: 100%;            /* ei murra layouti kitsastes konteinerites */
+  margin: .25rem 0 .5rem;     /* veidi õhku ümber nupu */
+  padding: .6rem .85rem;      /* natuke kompaktsem vertikaalne rütm */
+}
+
+/* telefoni ekraanidel jäta täislaius hea tabatavuse nimel */
+@media (max-width: 480px) {
+  .country-header[aria-controls="advanced-filters"] {
+    width: 100%;
+    display: flex;
+  }
+}
+
+/* suurem vertikaalne vahe iga täpsema filtribloki vahel
+   (nt Tegutsemisvahemik, Töökohad, Ametid, Ametiastmed) */
+#advanced-filters > div {
+  margin-top: 1rem;
+  padding-top: .25rem;
+  margin-bottom: 1.1rem;      /* ⟵ suurenda vahet */
+  border-top: 0;              /* hoia puhas – ääriseid ei lisa */
+}
+
+/* kui kasutad <strong> pealkirjana, tee sellele ka väike vahe */
+#advanced-filters strong {
+  display: inline-block;
+  margin-bottom: .35rem;
+}
+
+/* riikide akordioni sees: lase ridadel natuke rohkem hingata */
+.country-accordion .country-section {
+  padding-bottom: .4rem;
+  margin-bottom: .5rem;
+}
+
+/* linnade loendi ja eelmise pealkirja vahele veidi ruumi */
+.cities {
+  margin: .35rem 0 .7rem 1.25rem;
+}
+
+/* üldine filters-column vahe võib ka sammukese kasvada,
+   kui tunned, et vaja – täiesti valikuline */
+.filters-column {
+  gap: 1.5rem; /* oli 1.25rem */
+}
+
+/************************************************************
+ * RIIGID PAREMINI LOETAVAKS: grid + kaardid + sisemine scroll
+ ************************************************************/
+
+/* Pane riigid mitmesse tulpa – kaardid, mis murravad vastavalt laiusele */
+.country-accordion {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px; /* vahe kaartide vahel */
+}
+
+/* Iga riik eraldi “kaart” */
+.country-accordion .country-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  padding: .25rem .5rem; /* kompaktne sisemine polster */
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.country-accordion .country-section:hover {
+  border-color: #cfd6e4;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+/* Riigi päis kaartidel – hoia kompaktne, eralda visuaalselt linnadest */
+.country-accordion .country-header {
+  padding: .4rem .25rem;
+  background: transparent;
+  border: 0;
+  color: #1f2937;
+  font-weight: 700;
+  min-height: 36px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-radius: 8px 8px 0 0;
+}
+
+.country-accordion .country-header .chevron {
+  font-size: .95rem;
+}
+
+/* Kui kaart on avatud, jäta päis rõhutatuks */
+.country-accordion .country-header[aria-expanded="true"] {
+  background: linear-gradient(0deg, rgba(0,0,0,0.02), rgba(0,0,0,0.02));
+}
+
+/* Linnade konteiner – maks kõrgus ja sisemine kerimine */
+.country-accordion .cities {
+  margin: .4rem 0 .6rem 0; /* võtame vasaku indentatsiooni maha kaartide sees */
+  padding: .25rem .25rem .25rem 0;
+  max-height: 180px;      /* ⟵ pikkade riikide puhul ei veni kaart liigselt */
+  overflow: auto;         /* sisemine scroll */
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem .6rem;
+}
+
+/* Kerimisriba veidi diskreetsem (toetatud brauserid) */
+.country-accordion .cities::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.country-accordion .cities::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+.country-accordion .cities::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Linnade checkbox'id kui “kiibid” (pill-kujul) – loetavamad klastrid */
+.country-accordion .cities .checkbox-item {
+  background: #f7fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  padding: .25rem .55rem;
+  gap: .35rem;
+  line-height: 1.2;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+
+.country-accordion .cities .checkbox-item:hover {
+  background: #eef2f7;
+  border-color: #d7dee8;
+}
+
+/* Muuda checkbox ise veidi selgemaks kiibi sees */
+.country-accordion .cities .checkbox-item input[type="checkbox"] {
+  margin: 0;
+}
+
+/* Badge (valitud linnade loendur) taust veidi erksam – kaartidel silmatorkavam */
+.country-accordion .country-header .badge {
+  background: #e3eafc;
+  color: #203a8f;
+  font-weight: 700;
+}
+
+/* Väikestel ekraanidel 1 veerg – loetavus säilib */
+@media (max-width: 640px) {
+  .country-accordion {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+/* Kui soovid veel kompaktsemat kaarti, võid veidi vähendada max-height'i:
+   .country-accordion .cities { max-height: 150px; } */
+/* === RESULTS TOOLBAR === */
+.results-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .75rem;
+  margin: .5rem 0 1rem;
+}
+.results-toolbar .page-size {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .95rem;
+}
+.results-toolbar select {
+  padding: 6px 8px;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  font-size: .95rem;
+}
+
+/* === PAGINATION === */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+}
+.page-btn {
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 .5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: .95rem;
+  line-height: 1;
+  transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.page-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+.page-btn:disabled { opacity: .5; cursor: not-allowed; }
+.page-btn.active {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59,130,246,.15);
+  background: #eff6ff;
+  font-weight: 700;
+}
+.page-ellipsis { padding: 0 .25rem; color: #6b7280; }
+
+/* Kõik meedia-kaardid (MUIS pildid + välised lingid) ühes reas/ruudustikus */
+.meister-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  align-items: start; /* hoiab kaartide ülaääred joondatud */
+}
+
+/* Kui tahad, et MuisImage/ExternalLinkCard ei piiraks end max-widthiga gridi sees,
+   võid lisada nende CSS-i (MuisImage.module.css ja ExternalLinkCard.module.css) ka selle: */
+.wrap--fluid { max-width: none; }
+
+/************************************************************
+ * TAGASI NUpp — avalehe stiiliga kooskõlas
+ ************************************************************/
+ .backbar {
+  margin: 0 0 12px;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+
+  padding: .5rem .8rem;
+  border-radius: 8px;
+
+  background: #eef4ff;             /* pehme sinakas taust */
+  color: #1a237e;                   /* tumedam sinine tekst */
+  border: 1px solid #c9d6ff;        /* kerge ääris */
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+
+  font-size: .95rem;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: .1px;
+  cursor: pointer;
+
+  transition:
+    background-color .15s ease,
+    border-color .15s ease,
+    box-shadow .15s ease,
+    transform .05s ease;
+  min-height: 40px;                 /* tabatavus */
+}
+
+.back-button:hover {
+  background: #e5edff;
+  border-color: #b9c7ff;
+  box-shadow: 0 2px 6px rgba(26, 35, 126, 0.12);
+}
+
+.back-button:active {
+  transform: translateY(1px);
+}
+
+.back-button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* vasak noole-ikoon */
+.back-button .icon {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  line-height: 0;
+  flex: 0 0 auto;
+  color: inherit;
+}
+
+/* (valikuline) kitsal ekraanil täislaiuses */
+@media (max-width: 480px) {
+  .back-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.back-button--ghost {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+  color: #1f2937;
+}
+.back-button--ghost:hover {
+  background: #e2e8f0;
+  border-color: #b8c2cf;
+}
+
+/* Peida number-sisendi spinner/nooled (Chrome, Edge, Safari) */
+.year-input.no-spinner::-webkit-outer-spin-button,
+.year-input.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.year-input.no-spinner {
+  -moz-appearance: textfield;
+}
+/* Filtrite rida - nimi ja ajavahemik kõrvuti */
+.filters-row {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group strong {
+  font-size: 14px;
+}
+
+.name-input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  min-width: 200px;
+}
+
+.name-input:focus {
+  outline: none;
+  border-color: #666;
+}
+
+/* Mobiilil üksteise all */
+@media (max-width: 600px) {
+  .filters-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .name-input {
+    width: 100%;
+  }
+}
+
+/* Kiirvaate nupp tabelis */
+.quick-preview-btn {
+  padding: 6px 12px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.quick-preview-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.quick-preview-btn:active {
+  transform: translateY(0);
+}
+
+
+
+
+
