@@ -18,6 +18,7 @@ build/
 .vscode/
 .idea/
 *.log
+deploy.sh
 
 .claude/
 .gemini/
