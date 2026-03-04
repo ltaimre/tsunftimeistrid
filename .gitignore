@@ -19,3 +19,17 @@ build/
 .idea/
 *.log
 
+.claude/
+.gemini/
+.kilocode/
+.opencode/
+.cursor/
+.agent/
+openspec/
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+KILICODE.md
+OPENCODE.md
+CURSOR.md
+OPENSPEC.md
