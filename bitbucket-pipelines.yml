@@ -12,7 +12,6 @@ pipelines:
             - npm run build
           artifacts:
             - .next/**
-            - node_modules/**
             - public/**
             - package.json
             - next.config.js
@@ -34,6 +33,7 @@ pipelines:
             - echo "SHEET_ID=${SHEET_ID}" > .env.local
             - echo "SHEET_GID=${SHEET_GID}" >> .env.local
             - echo "DATA_SHEET_GID=${DATA_SHEET_GID}" >> .env.local
+            - echo "VALIKUD_SHEET_GID=${VALIKUD_SHEET_GID}" >> .env.local
 
             # Set up SSH key for zone.ee
             - pipe: atlassian/ssh-run:0.8.1
@@ -60,6 +60,15 @@ pipelines:
                   --exclude='README.md'
                   --delete
 
+            # Install production deps on server
+            - pipe: atlassian/ssh-run:0.8.1
+              variables:
+                SSH_USER: $ZONE_SSH_USER
+                SERVER: $ZONE_SSH_HOST
+                PORT: '22'
+                MODE: 'command'
+                COMMAND: 'cd $DEPLOY_PATH && npm install --production'
+
             # Restart PM2 application
             - pipe: atlassian/ssh-run:0.8.1
               variables:
@@ -69,5 +78,5 @@ pipelines:
                 MODE: 'command'
                 COMMAND: >-
                   cd $DEPLOY_PATH &&
-                  pm2 reload ecosystem.config.js --env production ||
-                  pm2 start ecosystem.config.js --env production
+                  pm2 reload ecosystem.config.js ||
+                  pm2 start ecosystem.config.js
