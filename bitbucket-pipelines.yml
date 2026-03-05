@@ -35,12 +35,12 @@ pipelines:
             - echo "SHEET_GID=${SHEET_GID}" >> .env.local
             - echo "DATA_SHEET_GID=${DATA_SHEET_GID}" >> .env.local
 
-            # Set up SSH key for zone.ee (port 1022)
+            # Set up SSH key for zone.ee
             - pipe: atlassian/ssh-run:0.8.1
               variables:
                 SSH_USER: $ZONE_SSH_USER
                 SERVER: $ZONE_SSH_HOST
-                PORT: '1022'
+                PORT: '22'
                 MODE: 'command'
                 COMMAND: 'mkdir -p $DEPLOY_PATH'
 
@@ -51,7 +51,7 @@ pipelines:
                 SERVER: $ZONE_SSH_HOST
                 REMOTE_PATH: $DEPLOY_PATH
                 LOCAL_PATH: '.'
-                SSH_PORT: '1022'
+                SSH_PORT: '22'
                 EXTRA_ARGS: >-
                   --exclude='.git'
                   --exclude='.gitignore'
@@ -65,7 +65,7 @@ pipelines:
               variables:
                 SSH_USER: $ZONE_SSH_USER
                 SERVER: $ZONE_SSH_HOST
-                PORT: '1022'
+                PORT: '22'
                 MODE: 'command'
                 COMMAND: >-
                   cd $DEPLOY_PATH &&
