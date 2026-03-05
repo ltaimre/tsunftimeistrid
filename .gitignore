@@ -19,6 +19,7 @@ build/
 .idea/
 *.log
 deploy.sh
+.htaccess
 
 .claude/
 .gemini/
