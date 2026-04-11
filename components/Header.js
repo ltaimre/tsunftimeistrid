@@ -15,6 +15,7 @@ export default function Header() {
         <span className={styles.logo}>T</span>
         <span className={styles.title}>Tsunftimeistrid</span>
       </Link>
+
     </header>
   );
 }
