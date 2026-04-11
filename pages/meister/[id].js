@@ -3,7 +3,6 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-import { fetchRowById } from "@/utils/fetchRowById";
 import { fetchData } from "@/lib/sheets";
 import { extractMuseaalId } from "@/utils/parseMuisUrl";
 import { buildMuisLink } from "@/utils/buildMuisLink";
@@ -106,12 +105,9 @@ function renderValue(key, value) {
 }
 
 export async function getServerSideProps({ params }) {
-  const meisterRaw = await fetchRowById(params.id, {
-    sheetId: process.env.SHEET_ID,
-    gid: process.env.SHEET_GID,
-    idCol: "A",
-    idIsNumber: true,
-  });
+  const allData = await fetchData();
+
+  const meisterRaw = allData.find((row) => String(row.ID) === String(params.id));
   if (!meisterRaw) return { notFound: true };
 
   const meister = filterObject(meisterRaw, DETAIL_FIELDS);
@@ -119,8 +115,6 @@ export async function getServerSideProps({ params }) {
   const fullName = [meisterRaw.eesnimi, meisterRaw.perekonnanimi]
     .filter(Boolean)
     .join(" ");
-
-  const allData = await fetchData();
 
   const nameToId = {};
   for (const row of allData) {
