@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 
 import { fetchRowById } from "@/utils/fetchRowById";
+import { fetchData } from "@/lib/sheets";
 import { extractMuseaalId } from "@/utils/parseMuisUrl";
 import { buildMuisLink } from "@/utils/buildMuisLink";
 import { getObjectImages } from "@/utils/fetchImagesUrl";
@@ -114,6 +115,41 @@ export async function getServerSideProps({ params }) {
   if (!meisterRaw) return { notFound: true };
 
   const meister = filterObject(meisterRaw, DETAIL_FIELDS);
+
+  const fullName = [meisterRaw.eesnimi, meisterRaw.perekonnanimi]
+    .filter(Boolean)
+    .join(" ");
+
+  const allData = await fetchData();
+
+  const nameToId = {};
+  for (const row of allData) {
+    const name = [row.eesnimi, row.perekonnanimi].filter(Boolean).join(" ");
+    if (name) nameToId[name] = row.ID;
+  }
+
+  const opetajaLinks = meisterRaw.opetaja
+    ? meisterRaw.opetaja
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean)
+        .map((nimi) => ({ nimi, id: nameToId[nimi] ?? null }))
+    : [];
+
+  const opilased = fullName
+    ? allData
+        .filter((row) => {
+          if (!row.opetaja) return false;
+          return row.opetaja
+            .split(",")
+            .map((t) => t.trim())
+            .includes(fullName);
+        })
+        .map((row) => ({
+          id: row.ID,
+          nimi: [row.eesnimi, row.perekonnanimi].filter(Boolean).join(" "),
+        }))
+    : [];
   if (meister.elulugu) meister.elulugu = formatText(meister.elulugu);
 
   const rawLink = meisterRaw.link || "";
@@ -190,11 +226,13 @@ export async function getServerSideProps({ params }) {
       meister,
       allImages,
       externalLinks,
+      opilased,
+      opetajaLinks,
     },
   };
 }
 
-export default function MeisterDetail({ meister, allImages, externalLinks }) {
+export default function MeisterDetail({ meister, allImages, externalLinks, opilased, opetajaLinks }) {
   const router = useRouter();
   const qs = new URLSearchParams(router.query || {}).toString();
   const backHref = `/search${qs ? `?${qs}` : ""}`;
@@ -236,9 +274,39 @@ export default function MeisterDetail({ meister, allImages, externalLinks }) {
           {Object.entries(meister).map(([key, value]) => (
             <tr key={key}>
               <td className="label">{labelFor(key)}</td>
-              <td>{renderValue(key, value)}</td>
+              <td>
+                {key === "opetaja" && opetajaLinks?.length > 0 ? (
+                  <ul>
+                    {opetajaLinks.map(({ nimi, id }, i) => (
+                      <li key={i}>
+                        {id ? (
+                          <Link href={`/meister/${id}`}>{nimi}</Link>
+                        ) : (
+                          nimi
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  renderValue(key, value)
+                )}
+              </td>
             </tr>
           ))}
+          {opilased?.length > 0 && (
+            <tr>
+              <td className="label">Õpilased</td>
+              <td>
+                <ul>
+                  {opilased.map(({ id, nimi }) => (
+                    <li key={id}>
+                      <Link href={`/meister/${id}`}>{nimi}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
 
