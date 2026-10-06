@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import { homeContent } from "../config/homeContent";
 import { homeGallery } from "../config/homeGallery";
 import HomeCarousel from "../components/HomeCarousel";
@@ -76,6 +77,13 @@ export default function Home() {
           </button>
         </div>
       </form>
+
+      {/* Võrgustiku link */}
+      <div className={styles.networkLinkRow}>
+        <Link href="/vorgustik" className={styles.networkLink}>
+          Vaata võrgustikku →
+        </Link>
+      </div>
 
       {/* Sisu sektsioon: kontakt ja annotatsioon */}
       <div className={styles.contentSection}>

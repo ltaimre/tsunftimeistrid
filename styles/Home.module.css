@@ -64,10 +64,35 @@
   flex-direction: column;
   align-items: center;
   gap: 15px;
-  margin-bottom: 50px;
+  margin-bottom: 20px;
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.networkLinkRow {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 50px;
+  max-width: 1200px;
+}
+
+.networkLink {
+  display: inline-block;
+  padding: 10px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #d32f2f;
+  border: 2px solid #d32f2f;
+  border-radius: 4px;
+  background-color: transparent;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.networkLink:hover {
+  background-color: #d32f2f;
+  color: white;
 }
 
 .searchRow {
