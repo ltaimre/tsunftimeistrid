@@ -1,0 +1,7 @@
+DirectoryIndex disabled
+DirectorySlash Off
+RewriteEngine On
+
+# Proxy all requests to Next.js app on port 3000
+# Zone.ee loopback IP (unique per account, not 127.0.0.1)
+RewriteRule ^(.*)$ http://127.2.61.44:3000%{REQUEST_URI} [P,L]

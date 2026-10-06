@@ -1,0 +1,82 @@
+image: node:20
+
+pipelines:
+  branches:
+    main:
+      - step:
+          name: Build
+          caches:
+            - node
+          script:
+            - npm ci
+            - npm run build
+          artifacts:
+            - .next/**
+            - public/**
+            - package.json
+            - next.config.js
+            - jsconfig.json
+            - ecosystem.config.js
+            - pages/**
+            - components/**
+            - hooks/**
+            - lib/**
+            - utils/**
+            - config/**
+            - styles/**
+
+      - step:
+          name: Deploy to zone.ee
+          deployment: production
+          script:
+            # Create .env.local for the server
+            - echo "SHEET_ID=${SHEET_ID}" > .env.local
+            - echo "SHEET_GID=${SHEET_GID}" >> .env.local
+            - echo "DATA_SHEET_GID=${DATA_SHEET_GID}" >> .env.local
+            - echo "VALIKUD_SHEET_GID=${VALIKUD_SHEET_GID}" >> .env.local
+
+            # Set up SSH key for zone.ee
+            - pipe: atlassian/ssh-run:0.8.1
+              variables:
+                SSH_USER: $ZONE_SSH_USER
+                SERVER: $ZONE_SSH_HOST
+                PORT: '22'
+                MODE: 'command'
+                COMMAND: 'mkdir -p $DEPLOY_PATH'
+
+            # Deploy files via rsync
+            - pipe: atlassian/rsync-deploy:0.12.0
+              variables:
+                USER: $ZONE_SSH_USER
+                SERVER: $ZONE_SSH_HOST
+                REMOTE_PATH: $DEPLOY_PATH
+                LOCAL_PATH: '.'
+                SSH_PORT: '22'
+                EXTRA_ARGS: >-
+                  --exclude='.git'
+                  --exclude='.gitignore'
+                  --exclude='.env*example'
+                  --exclude='bitbucket-pipelines.yml'
+                  --exclude='README.md'
+                  --delete
+
+            # Install production deps on server
+            - pipe: atlassian/ssh-run:0.8.1
+              variables:
+                SSH_USER: $ZONE_SSH_USER
+                SERVER: $ZONE_SSH_HOST
+                PORT: '22'
+                MODE: 'command'
+                COMMAND: 'cd $DEPLOY_PATH && npm install --production'
+
+            # Restart PM2 application
+            - pipe: atlassian/ssh-run:0.8.1
+              variables:
+                SSH_USER: $ZONE_SSH_USER
+                SERVER: $ZONE_SSH_HOST
+                PORT: '22'
+                MODE: 'command'
+                COMMAND: >-
+                  cd $DEPLOY_PATH &&
+                  pm2 reload ecosystem.config.js ||
+                  pm2 start ecosystem.config.js

@@ -1,7 +1,7 @@
 {
     "dependencies": {
         "fast-xml-parser": "^5.2.5",
-        "next": "^16.3.8",
+        "next": "^14.2.0",
         "papaparse": "^5.5.3",
         "react": "^18.2.0",
         "react-dom": "^18.2.0"

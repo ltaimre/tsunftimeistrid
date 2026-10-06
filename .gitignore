@@ -1,6 +1,5 @@
 # Node.js sõltuvused
 node_modules/
-package-lock.json
 pnpm-lock.yaml
 yarn.lock
 
@@ -18,4 +17,21 @@ build/
 .vscode/
 .idea/
 *.log
+deploy.sh
+.htaccess
 
+.claude/
+.gemini/
+.kilocode/
+.opencode/
+.cursor/
+.agent/
+openspec/
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+KILICODE.md
+OPENCODE.md
+CURSOR.md
+OPENSPEC.md
+bitbucket-pipline-credentials.md
